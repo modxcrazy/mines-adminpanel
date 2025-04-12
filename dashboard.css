@@ -1,0 +1,61 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #121212;
+  color: #fff;
+}
+
+.dashboard {
+  padding: 20px;
+}
+
+.dashboard h2 {
+  margin-bottom: 20px;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  min-width: 200px;
+  background: #1e1e2f;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.card h3 {
+  font-size: 16px;
+  color: #bbb;
+}
+
+.card p {
+  font-size: 28px;
+  font-weight: bold;
+  color: #00ffe0;
+  margin-top: 8px;
+}
+
+.charts {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 30px;
+  gap: 20px;
+}
+
+.chart-container {
+  flex: 1;
+  min-width: 300px;
+  background: #1e1e2f;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
