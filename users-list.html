@@ -224,23 +224,18 @@
          }, 500);
        }, 3000);
     }
+    
     function toggleBlock(uid, status) {
       const isBlocked = status === "blocked";
       const newStatus = isBlocked ? "active" : "blocked";
-      const message = isBlocked
-        ? "Do you want to unblock this user?"
-        : "Are you sure you want to block this user?";
-
-      if (confirm(message)) {
-        db.ref("users/" + uid + "/status").set(newStatus)
-          .then(() => {
-            showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
-            fetchUsers();
-           })
-           .catch(err => {
-             showToast("Error: " + err.message);
-           });
-      }
+      db.ref("users/" + uid + "/status").set(newStatus)
+      .then(() => {
+        showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
+        fetchUsers();
+       })
+       .catch(err => {
+          showToast("Error: " + "Tecnical issue");
+       });
     }
 
     // Live listeners
