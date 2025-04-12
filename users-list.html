@@ -7,118 +7,96 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+
   <style>
     * {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
+
     body {
-      background: #111;
+      background-color: #111;
       color: #fff;
       padding: 30px;
     }
-    .container {
-      max-width: 960px;
-      margin: auto;
+
+    .user-container {
+      max-width: 1000px;
+      margin: 0 auto;
     }
+
     h2 {
       text-align: center;
+      margin-bottom: 30px;
       color: #00e5ff;
-      margin-bottom: 20px;
     }
+
     .controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  flex-wrap: wrap;
-  gap: 20px;
-}
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
 
-.controls input,
-.controls select {
-  padding: 14px 18px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  background-color: #1f1f1f;
-  color: #00e5ff;
-  width: 100%;
-  max-width: 320px;
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
-  transition: 0.3s ease;
-}
+    .controls input,
+    .controls select {
+      flex: 1;
+      min-width: 250px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background-color: #1f1f1f;
+      color: #00e5ff;
+      box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+      transition: 0.3s ease;
+    }
 
-.controls input::placeholder {
-  color: #888;
-  font-weight: 500;
-}
+    .controls input::placeholder {
+      color: #aaa;
+    }
 
-.controls input:focus,
-.controls select:focus {
-  background-color: #282828;
-  box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
-  color: #ffffff;
-}
+    .controls input:focus,
+    .controls select:focus {
+      background-color: #282828;
+      box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+    }
 
-.controls select {
-  appearance: none;
-  background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23ffffff" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 16px;
-  cursor: pointer;
-  font-weight: 700;
-}
     .user-list {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
+
     .user-card {
       background: #1e1e1e;
-      border-left: 5px solid #00e5ff;
       padding: 20px;
       border-radius: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-left: 5px solid #00e5ff;
+      transition: transform 0.3s, box-shadow 0.3s;
     }
+
+    .user-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
     .user-info p {
-      margin: 5px 0;
-      font-size: 15px;
-    }
-    .block-btn {
-      padding: 10px 16px;
-      background-color: #ff1744;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-    .block-btn.unblock {
-      background-color: #00e676;
-    }
-    .pagination {
-      text-align: center;
-      margin-top: 20px;
-    }
-    .pagination button {
-      padding: 8px 12px;
-      margin: 0 5px;
-      background: #333;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .pagination button.active {
-      background-color: #00e5ff;
-      color: black;
+      margin: 4px 0;
+      font-size: 16px;
     }
 
     <!-- Toast Container -->
@@ -139,124 +117,135 @@
   display: none;
 "></div>
     
+    .block-btn {
+      background-color: #ff1744;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-weight: 600;
+    }
+
+    .block-btn:hover {
+      background-color: #e60033;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="user-container">
     <h2>All Registered Users</h2>
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by name or email..." />
+      <input type="text" id="searchInput" placeholder="Search by name, email or status..." />
       <select id="sortSelect">
         <option value="default">Sort by</option>
-         <option value="name">Name</option>
-         <option value="email">Email</option>
+        <option value="name">Name</option>
+        <option value="email">Email</option>
         <option value="date">Registration Date</option>
       </select>
     </div>
     <div id="userList" class="user-list"></div>
-    <div class="pagination" id="pagination"></div>
   </div>
 
   <script src="firebase-config.js"></script>
   <script>
     const db = firebase.database();
-    let allUsers = [];
-    const USERS_PER_PAGE = 10;
-    let currentPage = 1;
+
+    const searchInput = document.getElementById("searchInput");
+    const sortSelect = document.getElementById("sortSelect");
+
+    function filterUsers(users, query) {
+      query = query.toLowerCase();
+      return Object.keys(users).filter(uid => {
+        const user = users[uid];
+        return (
+          (user.name && user.name.toLowerCase().includes(query)) ||
+          (user.email && user.email.toLowerCase().includes(query)) ||
+          (user.status && user.status.toLowerCase().includes(query))
+        );
+      });
+    }
 
     function fetchUsers() {
-      db.ref("users").on("value", (snapshot) => {
-        const data = snapshot.val();
-        allUsers = data ? Object.entries(data).map(([uid, user]) => ({ uid, ...user })) : [];
-        renderUsers();
+      db.ref("users").once("value", snapshot => {
+        const users = snapshot.val();
+        if (!users) return;
+
+        const query = searchInput.value.trim().toLowerCase();
+        const sort = sortSelect.value;
+        let filteredKeys = filterUsers(users, query);
+
+        if (sort === "name") {
+          filteredKeys.sort((a, b) => (users[a].name || "").localeCompare(users[b].name || ""));
+        } else if (sort === "email") {
+          filteredKeys.sort((a, b) => (users[a].email || "").localeCompare(users[b].email || ""));
+        } else if (sort === "date") {
+          filteredKeys.sort((a, b) => (users[a].registrationDate || "").localeCompare(users[b].registrationDate || ""));
+        }
+
+        const userListDiv = document.getElementById("userList");
+        userListDiv.innerHTML = "";
+
+        filteredKeys.forEach(uid => {
+          const user = users[uid];
+          const card = document.createElement("div");
+          card.className = "user-card";
+          card.innerHTML = `
+            <div class="user-info">
+              <p><strong>Name:</strong> ${user.name || "N/A"}</p>
+              <p><strong>Email:</strong> ${user.email}</p>
+              <p><strong>Status:</strong> ${user.status || "active"}</p>
+              <p><strong>Registered:</strong> ${user.registrationDate || ""}</p>
+            </div>
+            <button class="block-btn" onclick="toggleBlock('${uid}', '${user.status || "active"}')">
+              ${user.status === "blocked" ? "Unblock" : "Block"}
+            </button>
+          `;
+          userListDiv.appendChild(card);
+        });
       });
-    }
-
-    function renderUsers() {
-      const search = document.getElementById("searchInput").value.toLowerCase();
-      const sort = document.getElementById("sortSelect").value;
-      let filtered = allUsers.filter(user =>
-        user.name?.toLowerCase().includes(search) || user.email?.toLowerCase().includes(search)
-      );
-
-      if (sort === "name") {
-        filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      } else if (sort === "email") {
-        filtered.sort((a, b) => (a.email || "").localeCompare(b.email || ""));
-      }
-
-      const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE);
-      if (currentPage > totalPages) currentPage = 1;
-
-      const start = (currentPage - 1) * USERS_PER_PAGE;
-      const paginated = filtered.slice(start, start + USERS_PER_PAGE);
-
-      const userList = document.getElementById("userList");
-      userList.innerHTML = "";
-
-      paginated.forEach(user => {
-        const card = document.createElement("div");
-        card.className = "user-card";
-        const isBlocked = user.status === "blocked";
-        card.innerHTML = `
-          <div class="user-info">
-            <p><strong>Name:</strong> ${user.name || "N/A"}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Status:</strong> ${user.status || "active"}</p>
-            <p><strong>Registered:</strong> ${user.registrationDate || "N/A"}</p>
-          </div>
-          <button class="block-btn ${isBlocked ? 'unblock' : ''}" onclick="toggleBlock('${user.uid}', ${isBlocked})">
-            ${isBlocked ? 'Unblock' : 'Block'}
-          </button>
-        `;
-        userList.appendChild(card);
-      });
-
-      // Pagination buttons
-      const pagination = document.getElementById("pagination");
-      pagination.innerHTML = "";
-      for (let i = 1; i <= totalPages; i++) {
-        pagination.innerHTML += `<button onclick="changePage(${i})" class="${i === currentPage ? 'active' : ''}">${i}</button>`;
-      }
-    }
-
-    function changePage(page) {
-      currentPage = page;
-      renderUsers();
     }
 
     function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.innerText = message;
-  toast.style.display = "block";
-  setTimeout(() => {
+    const toast = document.getElementById("toast");
+    toast.innerText = message;
+    toast.style.display = "block";
+    setTimeout(() => {
     toast.style.opacity = 1;
     toast.style.transform = "translateY(0)";
-  }, 100);
+    }, 100);
 
-  setTimeout(() => {
-    toast.style.opacity = 0;
-    toast.style.transform = "translateY(-30px)";
-    setTimeout(() => {
-      toast.style.display = "none";
-    }, 500);
-  }, 3000);
-}
-
-    function toggleBlock(uid, isBlocked) {
-      const newStatus = isBlocked ? "active" : "blocked";
-      const confirmation = confirm(`Are you sure you want to ${isBlocked ? "unblock" : "block"} this user?`);
-      if (!confirmation) return;
-
-      db.ref("users/" + uid + "/status").set(newStatus)
-        .then(() => {
-          showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
-          fetchUsers();
-        })
-        .catch(err => {
-          showToast("Error: " + err.message);
-        });
+      setTimeout(() => {
+         toast.style.opacity = 0;
+         toast.style.transform = "translateY(-30px)";
+         setTimeout(() => {
+           toast.style.display = "none";
+         }, 500);
+       }, 3000);
     }
+    function toggleBlock(uid, status) {
+      const isBlocked = status === "blocked";
+      const newStatus = isBlocked ? "active" : "blocked";
+      const message = isBlocked
+        ? "Do you want to unblock this user?"
+        : "Are you sure you want to block this user?";
+
+      if (confirm(message)) {
+        db.ref("users/" + uid + "/status").set(newStatus)
+          .then(() => {
+            showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
+            fetchUsers();
+           })
+           .catch(err => {
+             showToast("Error: " + err.message);
+           });
+      }
+    }
+
+    // Live listeners
+    searchInput.addEventListener("input", fetchUsers);
+    sortSelect.addEventListener("change", fetchUsers);
 
     fetchUsers();
   </script>
