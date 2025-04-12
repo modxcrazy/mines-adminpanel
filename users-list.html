@@ -4,17 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Users List - Admin Dashboard</title>
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Firebase libraries (compat versions for simplicity) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
-  <!-- Chart.js (if needed later) -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <style>
-    /* Base Reset & Font */
     * {
       margin: 0;
       padding: 0;
@@ -23,42 +18,44 @@
     }
 
     body {
-      background-color: #111;
+      background-color: #0e0e0e;
       color: #fff;
-      padding: 30px;
+      padding: 40px 20px;
     }
 
     .user-container {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
     h2 {
       text-align: center;
-      margin-bottom: 30px;
+      font-size: 32px;
+      margin-bottom: 40px;
       color: #00e5ff;
     }
 
     .user-list {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 20px;
     }
 
     .user-card {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 10px;
+      background: linear-gradient(135deg, #1e1e1e, #232323);
+      padding: 25px;
+      border-radius: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-left: 5px solid #00e5ff;
-      transition: transform 0.3s, box-shadow 0.3s;
+      border-left: 6px solid #00e5ff;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.4);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .user-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
     }
 
     .user-info {
@@ -66,8 +63,22 @@
     }
 
     .user-info p {
-      margin: 4px 0;
+      margin: 6px 0;
       font-size: 16px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      background-color: #2ecc71;
+      color: #fff;
+    }
+
+    .status-badge.blocked {
+      background-color: #e74c3c;
     }
 
     .block-btn {
@@ -75,76 +86,90 @@
       color: white;
       border: none;
       padding: 10px 16px;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s ease;
       font-weight: 600;
     }
 
     .block-btn:hover {
-      background-color: #e60033;
+      background-color: #d50032;
+    }
+
+    .no-user-msg {
+      text-align: center;
+      font-size: 18px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
+
   <div class="user-container">
     <h2>All Registered Users</h2>
     <div id="userList" class="user-list"></div>
   </div>
 
-<!-- Firebase Config File -->
-<script src="firebase-config.js"></script>
+  <!-- Firebase Config -->
+  <script src="firebase-config.js"></script>
 
-<!-- Main JavaScript -->
-<script>
-  const db = firebase.database();
-  const auth = firebase.auth(); // Use this if auth guard or login is required
+  <script>
+    const db = firebase.database();
 
-  // Function to fetch and render users
-  function fetchUsers() {
-    const usersRef = db.ref("users");
-    usersRef.once("value", snapshot => {
-      const users = snapshot.val();
-      const userListDiv = document.getElementById("userList");
-      userListDiv.innerHTML = "";
-      if (users) {
-        Object.keys(users).forEach(uid => {
-          const user = users[uid];
-          const card = document.createElement("div");
-          card.className = "user-card";
-          card.innerHTML = `
-            <div class="user-info">
-              <p><strong>Name:</strong> ${user.name || "N/A"}</p>
-              <p><strong>Email:</strong> ${user.email}</p>
-              <p><strong>Status:</strong> ${user.status || "active"}</p>
-              <p><strong>Registered:</strong> ${user.registrationDate || ""}</p>
-            </div>
-            <button class="block-btn" onclick="blockUser('${uid}')">Block</button>
-          `;
-          userListDiv.appendChild(card);
-        });
-      } else {
-        userListDiv.innerHTML = "<p>No users found.</p>";
-      }
-    });
-  }
+    function fetchUsers() {
+      const usersRef = db.ref("users");
+      usersRef.once("value", snapshot => {
+        const users = snapshot.val();
+        const userListDiv = document.getElementById("userList");
+        userListDiv.innerHTML = "";
 
-  // Function to block a user (update their status)
-  function blockUser(uid) {
-    if (confirm("Are you sure you want to block this user?")) {
-      db.ref("users/" + uid + "/status").set("blocked")
-        .then(() => {
-          alert("User blocked successfully!");
-          fetchUsers();
-        })
-        .catch(err => {
-          alert("Error blocking user: " + err.message);
-        });
+        if (users) {
+          Object.keys(users).forEach(uid => {
+            const user = users[uid];
+            const card = document.createElement("div");
+            card.className = "user-card";
+
+            const status = user.status || "active";
+            const isBlocked = status === "blocked";
+            const statusClass = isBlocked ? "status-badge blocked" : "status-badge";
+            const buttonLabel = isBlocked ? "Unblock" : "Block";
+
+            card.innerHTML = `
+              <div class="user-info">
+                <p><strong>Name:</strong> ${user.name || "N/A"}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Status:</strong> <span class="${statusClass}">${status}</span></p>
+                <p><strong>Registered:</strong> ${user.registrationDate || "N/A"}</p>
+              </div>
+              <button class="block-btn" onclick="toggleBlock('${uid}', '${status}')">${buttonLabel}</button>
+            `;
+            userListDiv.appendChild(card);
+          });
+        } else {
+          userListDiv.innerHTML = `<p class="no-user-msg">No users found.</p>`;
+        }
+      });
     }
-  }
 
-  // Call fetchUsers() on load
-  fetchUsers();
-</script>
+    function toggleBlock(uid, currentStatus) {
+      const newStatus = currentStatus === "blocked" ? "active" : "blocked";
+      const confirmMsg = currentStatus === "blocked"
+        ? "Do you want to UNBLOCK this user?"
+        : "Are you sure you want to BLOCK this user?";
+      
+      if (confirm(confirmMsg)) {
+        db.ref("users/" + uid + "/status").set(newStatus)
+          .then(() => {
+            alert(`User has been ${newStatus === "blocked" ? "blocked" : "unblocked"}.`);
+            fetchUsers();
+          })
+          .catch(err => {
+            alert("Error: " + err.message);
+          });
+      }
+    }
+
+    fetchUsers();
+  </script>
 </body>
 </html>
