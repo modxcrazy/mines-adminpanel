@@ -120,6 +120,25 @@
       background-color: #00e5ff;
       color: black;
     }
+
+    <!-- Toast Container -->
+<div id="toast" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #00e5ff;
+  color: #000;
+  padding: 14px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: all 0.5s ease;
+  z-index: 9999;
+  display: none;
+"></div>
+    
   </style>
 </head>
 <body>
@@ -206,14 +225,37 @@
       renderUsers();
     }
 
+    function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.opacity = 1;
+    toast.style.transform = "translateY(0)";
+  }, 100);
+
+  setTimeout(() => {
+    toast.style.opacity = 0;
+    toast.style.transform = "translateY(-30px)";
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 500);
+  }, 3000);
+}
+
     function toggleBlock(uid, isBlocked) {
       const newStatus = isBlocked ? "active" : "blocked";
       const confirmation = confirm(`Are you sure you want to ${isBlocked ? "unblock" : "block"} this user?`);
       if (!confirmation) return;
 
       db.ref("users/" + uid + "/status").set(newStatus)
-        .then(() => alert(`User ${isBlocked ? "unblocked" : "blocked"} successfully.`))
-        .catch(err => alert("Error: " + err.message));
+        .then(() => {
+          showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
+          fetchUsers();
+        })
+        .catch(err => {
+          showToast("Error: " + err.message);
+        });
     }
 
     fetchUsers();
