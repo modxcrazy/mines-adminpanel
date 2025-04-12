@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Update UPI Settings</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #111827;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background-color: #334155;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #10b981;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #059669;
+    }
+
+    .success {
+      margin-top: 20px;
+      text-align: center;
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    .error {
+      margin-top: 20px;
+      text-align: center;
+      color: #f87171;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Update UPI Settings</h2>
+    
+    <label for="upiId">UPI ID</label>
+    <input type="text" id="upiId" placeholder="example@upi" />
+
+    <label for="upiAmount">Amount (₹)</label>
+    <input type="number" id="upiAmount" placeholder="Enter amount" />
+
+    <button onclick="updateUPI()">Save Settings</button>
+
+    <div id="message"></div>
+  </div>
+  
+  <script src="firebase-config.js"></script>
+  <script>
+    const database = firebase.database();
+
+    function updateUPI() {
+      const upi = document.getElementById('upiId').value.trim();
+      const amount = document.getElementById('upiAmount').value.trim();
+      const message = document.getElementById('message');
+
+      if (upi === '' || amount === '') {
+        message.innerHTML = "<div class='error'>Please fill all fields</div>";
+        return;
+      }
+
+      database.ref("settings").set({
+        upi: upi,
+        amount: amount
+      })
+      .then(() => {
+        message.innerHTML = "<div class='success'>UPI Settings Updated Successfully!</div>";
+      })
+      .catch((error) => {
+        message.innerHTML = "<div class='error'>Error: " + error.message + "</div>";
+      });
+    }
+  </script>
+</body>
+</html>
