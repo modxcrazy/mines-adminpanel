@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Manager Panel</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+
+    h2 {
+      color: #00e5ff;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      padding: 12px;
+      font-size: 16px;
+      width: 300px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background-color: #222;
+      color: #00e5ff;
+      box-shadow: 0 0 10px rgba(0,229,255,0.3);
+    }
+
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #00e5ff;
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00c2d1;
+    }
+
+    .admin-list {
+      margin-top: 30px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .admin-card {
+      background: #1e1e1e;
+      margin: 10px 0;
+      padding: 14px 20px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 4px solid #00e5ff;
+    }
+
+    .remove-btn {
+      background-color: #ff1744;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00e5ff;
+      color: #000;
+      padding: 14px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: all 0.5s ease;
+      z-index: 9999;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Manage Admin Access</h2>
+
+  <div class="input-group">
+    <input type="text" id="uidInput" placeholder="Enter UID to grant/remove admin access" />
+    <button onclick="addAdmin()">Add Admin</button>
+  </div>
+
+  <div class="admin-list" id="adminList"></div>
+
+  <div id="toast"></div>
+
+  <script src="firebase-config.js"></script>
+  <script>
+    const db = firebase.database();
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(0)";
+      }, 100);
+      setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.transform = "translateY(-30px)";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 500);
+      }, 3000);
+    }
+
+    function addAdmin() {
+      const uid = document.getElementById("uidInput").value.trim();
+      if (!uid) return showToast("Please enter a UID");
+
+      db.ref("admins/" + uid).set(true)
+        .then(() => {
+          showToast("Admin added successfully!");
+          document.getElementById("uidInput").value = "";
+          fetchAdmins();
+        })
+        .catch(() => showToast("Failed to add admin"));
+    }
+
+    function removeAdmin(uid) {
+      db.ref("admins/" + uid).remove()
+        .then(() => {
+          showToast("Admin removed!");
+          fetchAdmins();
+        })
+        .catch(() => showToast("Failed to remove admin"));
+    }
+
+    function fetchAdmins() {
+      db.ref("admins").once("value", snapshot => {
+        const data = snapshot.val();
+        const list = document.getElementById("adminList");
+        list.innerHTML = "";
+
+        if (!data) {
+          list.innerHTML = "<p>No admins found.</p>";
+          return;
+        }
+
+        Object.keys(data).forEach(uid => {
+          const card = document.createElement("div");
+          card.className = "admin-card";
+          card.innerHTML = `
+            <span><strong>UID:</strong> ${uid}</span>
+            <button class="remove-btn" onclick="removeAdmin('${uid}')">Remove</button>
+          `;
+          list.appendChild(card);
+        });
+      });
+    }
+
+    fetchAdmins();
+  </script>
+
+</body>
+</html>
