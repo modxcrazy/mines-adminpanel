@@ -40,6 +40,49 @@ body {
   margin-top: 8px;
 }
 
+/* Smaller Card Heights */
+.small-cards .card {
+  height: 120px;
+}
+
+/* Extra Grid Section */
+.extra-grid {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.extra-grid .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.grid-card {
+  flex: 1;
+  padding: 20px;
+  background: #1e1e2f;
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.action-card {
+  background: #0066ff;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+.action-card:hover {
+  background: #004dcf;
+}
+
+.info-card {
+  background: #444;
+}
+
 .charts {
   display: flex;
   flex-wrap: wrap;
