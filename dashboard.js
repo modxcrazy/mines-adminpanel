@@ -2,12 +2,22 @@ const db = firebase.database();
 const auth = firebase.auth();
 
 // -------------------- Auth Guard --------------------
-// Redirect to login.html if no user is logged in; otherwise load dashboard data.
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    window.location.href = "admin-login.html";
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    const uid = user.uid;
+    firebase.database().ref('admins/' + uid).once('value').then((snapshot) => {
+      if (snapshot.exists()) {
+        console.log("Admin access granted");
+        // Show admin content
+        document.getElementById('admin-content').style.display = 'block';
+      } else {
+        console.log("Admin access denied");
+        alert("You are not authorized!");
+        window.location.href = "admin-login.html"; // ya login page
+      }
+    });
   } else {
-    loadDashboardData();
+    window.location.href = "login.html";
   }
 });
 
