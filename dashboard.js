@@ -14,7 +14,7 @@ auth.onAuthStateChanged(user => {
 //---------- Admin Logout --------
 document.getElementById("logoutBtn").addEventListener("click", () => {
   firebase.auth().signOut().then(() => {
-    window.location.href = "login.html";
+    window.location.href = "admin-login.html";
   }).catch((error) => {
     alert("Logout failed: " + error.message);
   });
