@@ -39,13 +39,23 @@
 
 <!-- New Grid Section -->
 <div class="extra-grid">
-  <div class="row">
-    <div class="grid-card action-card">View Transactions</div>
-    <div class="grid-card action-card">View Users</div>
+  <div class="grid-row">
+    <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
+      <h4>View Transactions</h4>
+    </div>
+    <div class="grid-card clickable-card" onclick="location.href='users.html'">
+      <h4>View Users</h4>
+    </div>
   </div>
-  <div class="row">
-    <div class="grid-card info-card">Blocked Users</div>
-    <div class="grid-card info-card">Name</div>
+  <div class="grid-row">
+    <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
+      <h4>Blocked Users</h4>
+      <p>5</p> <!-- You can update this dynamically -->
+    </div>
+    <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
+      <h4>Name</h4>
+      <p>Admin</p> <!-- You can also make this dynamic -->
+    </div>
   </div>
 </div>
 
