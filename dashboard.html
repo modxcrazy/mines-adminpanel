@@ -5,75 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      background: #111;
-      color: #fff;
-      padding: 20px;
-    }
-
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .card {
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-      transition: 0.3s ease;
-    }
-
-    .card:hover {
-      transform: scale(1.03);
-    }
-
-    .card h2 {
-      font-size: 36px;
-    }
-
-    .card p {
-      font-size: 18px;
-      color: #ddd;
-    }
-
-    .chart-area {
-      margin-top: 20px;
-      background: #222;
-      border-radius: 12px;
-      padding: 20px;
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <h1>Admin Dashboard</h1>
-
   <div class="dashboard">
-    <div class="card">
-      <h2 id="userCount">0</h2>
-      <p>Total Users</p>
+    <h2>Admin Dashboard</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>Total Users</h3>
+        <p id="userCount">0</p>
+      </div>
+      <div class="card">
+        <h3>Total Transactions</h3>
+        <p id="transactionCount">0</p>
+      </div>
+      <div class="card">
+        <h3>Total Amount</h3>
+        <p id="amountSum">₹0</p>
+      </div>
     </div>
-    <div class="card">
-      <h2 id="txnCount">0</h2>
-      <p>Total Transactions</p>
-    </div>
-    <div class="card">
-      <h2 id="txnAmount">₹0</h2>
-      <p>Total Amount</p>
+
+    <div class="charts">
+      <div class="chart-container">
+        <h3>User Growth</h3>
+        <canvas id="userChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Transaction Distribution</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
     </div>
   </div>
 
-  <script type="module" src="admin.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="dashboard.js"></script>
 </body>
 </html>
