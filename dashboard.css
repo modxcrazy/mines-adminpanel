@@ -51,41 +51,41 @@ body {
 .grid-row {
   display: flex;
   gap: 20px;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .grid-card {
   flex: 1;
-  background: #1f1f2e;
+  min-width: 220px;
+  background: #1e1e2f;
   padding: 20px;
   border-radius: 12px;
   color: #fff;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.3s ease;
-  min-width: 200px;
+  transition: 0.3s ease;
+  box-shadow: 0 0 10px #1f1f2e;
 }
 
 .grid-card h4 {
-  font-size: 1.2em;
+  font-size: 1.3em;
   margin-bottom: 10px;
-  font-weight: 600;
+  color: #00ffc8;
 }
 
 .grid-card p {
-  font-size: 1.5em;
-  font-weight: 500;
-  color: #00ffcc;
+  font-size: 1.1em;
+  color: #ffffffb3;
 }
 
 .clickable-card {
   cursor: pointer;
-  background: linear-gradient(135deg, #2f2f47, #3b3b5a);
+  background: linear-gradient(135deg, #292943, #383856);
   box-shadow: 0 0 10px #00ffcc40;
 }
 
 .clickable-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-5px);
   box-shadow: 0 0 15px #00ffcc80;
 }
 
