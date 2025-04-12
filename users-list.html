@@ -99,24 +99,6 @@
       font-size: 16px;
     }
 
-    <!-- Toast Container -->
-<div id="toast" style="
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #00e5ff;
-  color: #000;
-  padding: 14px 22px;
-  border-radius: 8px;
-  font-weight: 600;
-  box-shadow: 0 5px 12px rgba(0,0,0,0.3);
-  opacity: 0;
-  transform: translateY(-30px);
-  transition: all 0.5s ease;
-  z-index: 9999;
-  display: none;
-"></div>
-    
     .block-btn {
       background-color: #ff1744;
       color: white;
@@ -124,12 +106,34 @@
       padding: 10px 16px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: all 0.3s ease;
       font-weight: 600;
     }
 
+    .block-btn.unblock {
+      background-color: #00e676;
+    }
+
     .block-btn:hover {
-      background-color: #e60033;
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00e5ff;
+      color: #000;
+      padding: 14px 22px;
+      border-radius: 8px;
+      font-weight: 600;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+      opacity: 0;
+      transform: translateY(-30px);
+      transition: all 0.5s ease;
+      z-index: 9999;
+      display: none;
     }
   </style>
 </head>
@@ -148,10 +152,11 @@
     <div id="userList" class="user-list"></div>
   </div>
 
+  <div id="toast"></div>
+
   <script src="firebase-config.js"></script>
   <script>
     const db = firebase.database();
-
     const searchInput = document.getElementById("searchInput");
     const sortSelect = document.getElementById("sortSelect");
 
@@ -191,6 +196,11 @@
           const user = users[uid];
           const card = document.createElement("div");
           card.className = "user-card";
+
+          const isBlocked = user.status === "blocked";
+          const btnClass = isBlocked ? "block-btn unblock" : "block-btn";
+          const btnLabel = isBlocked ? "Unblock" : "Block";
+
           card.innerHTML = `
             <div class="user-info">
               <p><strong>Name:</strong> ${user.name || "N/A"}</p>
@@ -198,8 +208,8 @@
               <p><strong>Status:</strong> ${user.status || "active"}</p>
               <p><strong>Registered:</strong> ${user.registrationDate || ""}</p>
             </div>
-            <button class="block-btn" onclick="toggleBlock('${uid}', '${user.status || "active"}')">
-              ${user.status === "blocked" ? "Unblock" : "Block"}
+            <button class="${btnClass}" onclick="toggleBlock('${uid}', '${user.status || "active"}')">
+              ${btnLabel}
             </button>
           `;
           userListDiv.appendChild(card);
@@ -208,23 +218,24 @@
     }
 
     function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.style.display = "block";
-    setTimeout(() => {
-    toast.style.opacity = 1;
-    toast.style.transform = "translateY(0)";
-    }, 100);
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.style.display = "block";
 
       setTimeout(() => {
-         toast.style.opacity = 0;
-         toast.style.transform = "translateY(-30px)";
-         setTimeout(() => {
-           toast.style.display = "none";
-         }, 500);
-       }, 3000);
+        toast.style.opacity = 1;
+        toast.style.transform = "translateY(0)";
+      }, 50);
+
+      setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.transform = "translateY(-30px)";
+        setTimeout(() => {
+          toast.style.display = "none";
+        }, 500);
+      }, 3000);
     }
-    
+
     function toggleBlock(uid, status) {
       const isBlocked = status === "blocked";
       const newStatus = isBlocked ? "active" : "blocked";
@@ -232,16 +243,15 @@
       .then(() => {
         showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
         fetchUsers();
-       })
-       .catch(err => {
-          showToast("Error: " + "Tecnical issue");
-       });
+      })
+      .catch(err => {
+        console.error(err);
+        showToast("Error: Technical issue");
+      });
     }
 
-    // Live listeners
     searchInput.addEventListener("input", fetchUsers);
     sortSelect.addEventListener("change", fetchUsers);
-
     fetchUsers();
   </script>
 </body>
