@@ -42,7 +42,7 @@ body {
 
 /* Extra Grid Section */
 .extra-grid {
-  margin-top: 40px;
+  margin-top: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -51,42 +51,43 @@ body {
 .grid-row {
   display: flex;
   gap: 20px;
-  flex-wrap: wrap;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .grid-card {
-  flex: 1;
-  min-width: 220px;
-  background: #1e1e2f;
+  flex: 1 1 calc(50% - 10px);
+  background-color: #1e1e2f;
+  color: #fff;
   padding: 20px;
   border-radius: 12px;
-  color: #fff;
-  text-align: center;
-  transition: 0.3s ease;
-  box-shadow: 0 0 10px #1f1f2e;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.2s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.icon-text img.icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: brightness(1.2);
 }
 
 .grid-card h4 {
-  font-size: 1.3em;
-  margin-bottom: 10px;
-  color: #00ffc8;
-}
-
-.grid-card p {
-  font-size: 1.1em;
-  color: #ffffffb3;
-}
-
-.clickable-card {
-  cursor: pointer;
-  background: linear-gradient(135deg, #292943, #383856);
-  box-shadow: 0 0 10px #00ffcc40;
-}
-
-.clickable-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 15px #00ffcc80;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .charts {
