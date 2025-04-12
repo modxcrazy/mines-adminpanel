@@ -1,41 +1,72 @@
-// admin.js
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+const db = firebase.database();
+const auth = firebase.auth();
 
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_DOMAIN",
-  databaseURL: "https://YOUR_DB.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_BUCKET",
-  messagingSenderId: "YOUR_ID",
-  appId: "YOUR_APP_ID"
+// Fetch user count from Firebase Auth
+firebase.auth().listUsers = async function () {
+  const usersRef = firebase.database().ref("users");
+  const snapshot = await usersRef.once("value");
+  return Object.keys(snapshot.val() || {}).length;
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+async function loadDashboardData() {
+  // Fetch total users
+  const usersRef = db.ref("users");
+  usersRef.once("value", snapshot => {
+    const users = snapshot.val();
+    const count = users ? Object.keys(users).length : 0;
+    document.getElementById("userCount").textContent = count;
+  });
 
-const userCountEl = document.getElementById("userCount");
-const txnCountEl = document.getElementById("txnCount");
-const txnAmountEl = document.getElementById("txnAmount");
+  // Fetch transactions
+  const txRef = db.ref("transactions");
+  txRef.once("value", snapshot => {
+    let totalAmount = 0;
+    let totalCount = 0;
 
-onValue(ref(db, 'users'), (snapshot) => {
-  const users = snapshot.val();
-  userCountEl.innerText = users ? Object.keys(users).length : 0;
-});
-
-onValue(ref(db, 'transactions'), (snapshot) => {
-  const txns = snapshot.val();
-  let count = 0;
-  let totalAmount = 0;
-
-  if (txns) {
-    count = Object.keys(txns).length;
-    Object.values(txns).forEach(txn => {
-      totalAmount += parseFloat(txn.amount || 0);
+    snapshot.forEach(child => {
+      const tx = child.val();
+      if (tx.amount) {
+        totalAmount += parseFloat(tx.amount);
+      }
+      totalCount++;
     });
-  }
 
-  txnCountEl.innerText = count;
-  txnAmountEl.innerText = `₹${totalAmount.toFixed(2)}`;
-});
+    document.getElementById("transactionCount").textContent = totalCount;
+    document.getElementById("amountSum").textContent = "₹" + totalAmount.toLocaleString();
+  });
+
+  // Static Charts
+  renderCharts();
+}
+
+function renderCharts() {
+  new Chart(document.getElementById('userChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+      datasets: [{
+        label: 'Users',
+        data: [100, 300, 500, 700, 1187],
+        backgroundColor: '#00ffe0',
+        borderColor: '#00ffe0',
+        fill: false
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('pieChart').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Success', 'Pending', 'Failed'],
+      datasets: [{
+        label: 'Transactions',
+        data: [230, 50, 44],
+        backgroundColor: ['#00ff95', '#ffaa00', '#ff005c']
+      }]
+    },
+    options: { responsive: true }
+  });
+}
+
+window.onload = loadDashboardData;
