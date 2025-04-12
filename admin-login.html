@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('https://images.unsplash.com/photo-1608571424300-b7137cdd7f2b?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+      position: relative;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      backdrop-filter: blur(8px);
+      background-color: rgba(0, 0, 0, 0.3);
+      z-index: 0;
+    }
+
+    .login-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: center;
+    }
+
+    .logo {
+      width: 80px;
+      margin: 0 auto 20px;
+      animation: bounce 1.5s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .login-container h2 {
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    .login-container input::placeholder {
+      color: #eee;
+    }
+
+    .login-container input:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background-image: linear-gradient(to right, #00c6ff, #0072ff);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .login-container button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+    }
+
+    .error-text {
+      color: #ff4d4d;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+      .logo {
+        width: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" alt="Logo" class="logo" />
+    <h2>Admin Login</h2>
+    <input type="email" id="loginEmail" placeholder="Enter Email" />
+    <input type="password" id="loginPassword" placeholder="Enter Password" />
+    <button id="loginBtn">Login</button>
+    <p id="loginError" class="error-text"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+      authDomain: "pg-data-ed1c2.firebaseapp.com",
+      projectId: "pg-data-ed1c2",
+      appId: "1:884858492190:web:67b7606ff790064ef3250f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const loginBtn = document.getElementById("loginBtn");
+    const loginError = document.getElementById("loginError");
+
+    loginBtn.addEventListener("click", () => {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          loginError.textContent = "";
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          loginBtn.textContent = "Success!";
+          loginBtn.style.backgroundImage = "linear-gradient(to right, #00ff8c, #00b86b)";
+          setTimeout(() => {
+            window.location.href = "dashboard.html"; // Redirect to dashboard
+          }, 2000);
+        })
+        .catch((error) => {
+          loginError.textContent = "Invalid email or password!";
+          console.error(error);
+        });
+    });
+  </script>
+</body>
+</html>
