@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Users List - Admin Dashboard</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Firebase libraries (compat versions for simplicity) -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+  <!-- Chart.js (if needed later) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    /* Base Reset & Font */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #111;
+      color: #fff;
+      padding: 30px;
+    }
+
+    .user-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #00e5ff;
+    }
+
+    .user-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .user-card {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid #00e5ff;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .user-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-info p {
+      margin: 4px 0;
+      font-size: 16px;
+    }
+
+    .block-btn {
+      background-color: #ff1744;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-weight: 600;
+    }
+
+    .block-btn:hover {
+      background-color: #e60033;
+    }
+  </style>
+</head>
+<body>
+  <div class="user-container">
+    <h2>All Registered Users</h2>
+    <div id="userList" class="user-list"></div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script
+    const db = firebase.database();
+    const auth = firebase.auth(); // Use this if auth guard or login is required
+
+    // Function to fetch and render users
+    function fetchUsers() {
+      const usersRef = db.ref("users");
+      usersRef.once("value", snapshot => {
+        const users = snapshot.val();
+        const userListDiv = document.getElementById("userList");
+        userListDiv.innerHTML = "";
+        if (users) {
+          Object.keys(users).forEach(uid => {
+            const user = users[uid];
+            const card = document.createElement("div");
+            card.className = "user-card";
+            card.innerHTML = `
+              <div class="user-info">
+                <p><strong>Name:</strong> ${user.name || "N/A"}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Status:</strong> ${user.status || "active"}</p>
+                <p><strong>Registered:</strong> ${user.registrationDate || ""}</p>
+              </div>
+              <button class="block-btn" onclick="blockUser('${uid}')">Block</button>
+            `;
+            userListDiv.appendChild(card);
+          });
+        } else {
+          userListDiv.innerHTML = "<p>No users found.</p>";
+        }
+      });
+    }
+
+    // Function to block a user (update their status)
+    function blockUser(uid) {
+      if (confirm("Are you sure you want to block this user?")) {
+        db.ref("users/" + uid + "/status").set("blocked")
+          .then(() => {
+            alert("User blocked successfully!");
+            fetchUsers();
+          })
+          .catch(err => {
+            alert("Error blocking user: " + err.message);
+          });
+      }
+    }
+
+    // Call fetchUsers() on load
+    fetchUsers();
+  </script>
+</body>
+</html>
