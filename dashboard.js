@@ -11,6 +11,15 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+//---------- Admin Logout --------
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  firebase.auth().signOut().then(() => {
+    window.location.href = "login.html";
+  }).catch((error) => {
+    alert("Logout failed: " + error.message);
+  });
+});
+
 // (Optional) Function to fetch user count via Firebase Auth – not used later on
 firebase.auth().listUsers = async function () {
   const usersRef = firebase.database().ref("users");
