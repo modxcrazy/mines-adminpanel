@@ -30,39 +30,48 @@
     .controls {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  align-items: center;
+  margin-bottom: 25px;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 20px;
 }
 
 .controls input,
 .controls select {
-  padding: 12px 16px;
-  font-size: 15px;
-  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
   border: none;
   outline: none;
   background-color: #1f1f1f;
-  color: #fff;
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
-  transition: 0.3s;
+  color: #00e5ff;
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
+  transition: 0.3s ease;
+}
+
+.controls input::placeholder {
+  color: #888;
+  font-weight: 500;
 }
 
 .controls input:focus,
 .controls select:focus {
-  box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
-  background-color: #2a2a2a;
+  background-color: #282828;
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+  color: #ffffff;
 }
 
 .controls select {
   appearance: none;
-  background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" fill="%23fff" viewBox="0 0 20 20"><path d="M7 7l3-3 3 3h-2v6h-2V7H7z"/></svg>');
+  background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23ffffff" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 14px center;
   background-size: 16px;
   cursor: pointer;
+  font-weight: 700;
 }
     .user-list {
       display: flex;
@@ -117,11 +126,12 @@
   <div class="container">
     <h2>All Registered Users</h2>
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by name/email..." oninput="renderUsers()">
-      <select id="sortSelect" onchange="renderUsers()">
-        <option value="">Sort by</option>
-        <option value="name">Sort by Name</option>
-        <option value="email">Sort by Email</option>
+      <input type="text" id="searchInput" placeholder="Search by name or email..." />
+      <select id="sortSelect">
+        <option value="default">Sort by</option>
+         <option value="name">Name</option>
+         <option value="email">Email</option>
+        <option value="date">Registration Date</option>
       </select>
     </div>
     <div id="userList" class="user-list"></div>
