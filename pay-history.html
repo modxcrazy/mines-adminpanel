@@ -18,45 +18,7 @@
       min-height: 100vh;
       transition: background 0.3s, color 0.3s;
     }
-    .dark-theme {
-      background-color: #121212;
-      color: #f1f1f1;
-    }
-    .light-theme {
-      background-color: #f9f9f9;
-      color: #111;
-    }
-    .sidebar {
-      width: 230px;
-      background: #1f1f1f;
-      color: white;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .sidebar h2 {
-      margin-bottom: 20px;
-      font-size: 22px;
-    }
-    .sidebar ul {
-      list-style: none;
-    }
-    .sidebar ul li {
-      margin: 15px 0;
-    }
-    .sidebar ul li a, .sidebar ul li button {
-      color: white;
-      text-decoration: none;
-      background: none;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .sidebar .theme-toggle {
-      margin-top: 20px;
-      font-size: 14px;
-    }
+   
     .main-content {
       flex: 1;
       padding: 20px 30px;
@@ -149,11 +111,6 @@
       background: #dc3545;
       color: white;
     }
-    #saveUpiBtn {
-      background: #007bff;
-      color: white;
-      margin-top: 10px;
-    }
     .toast {
       position: fixed;
       bottom: 30px;
@@ -171,19 +128,6 @@
   </style>
 </head>
 <body class="dark-theme">
-  <div class="sidebar">
-    <h2>Admin Panel</h2>
-    <ul>
-      <li><a href="#">Dashboard</a></li>
-      <li><a href="#">Transactions</a></li>
-      <li><a href="#">Settings</a></li>
-      <li><button id="logoutBtn">Logout</button></li>
-    </ul>
-    <div class="theme-toggle">
-      <label>Dark Mode</label>
-      <input type="checkbox" id="themeSwitch" checked />
-    </div>
-  </div>
 
   <div class="main-content">
     <div class="top-bar">
@@ -192,17 +136,6 @@
         <span id="notifIcon">🔔</span>
         <div id="notifPopup" class="notif-popup">New transaction received!</div>
       </div>
-    </div>
-
-    <div class="card">
-      <h3>Update UPI Settings</h3>
-      <div class="form-group">
-        <input type="text" id="adminUpi" placeholder="Enter UPI ID" />
-      </div>
-      <div class="form-group">
-        <input type="number" id="adminAmount" placeholder="Enter Amount" />
-      </div>
-      <button id="saveUpiBtn">Save Settings</button>
     </div>
 
     <table class="txn-table">
@@ -242,17 +175,6 @@
 
     onAuthStateChanged(auth, user => {
       if (!user) window.location.href = "admin-login.html";
-    });
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      signOut(auth).then(() => window.location.href = "admin-login.html");
-    });
-
-    document.getElementById("saveUpiBtn").addEventListener("click", () => {
-      const upi = document.getElementById("adminUpi").value.trim();
-      const amount = document.getElementById("adminAmount").value.trim();
-      if (!upi || !amount) return alert("Please enter UPI ID and Amount");
-      set(ref(db, "settings"), { upi, amount }).then(() => showToast("Settings updated!"));
     });
 
     const transactions = [];
@@ -337,16 +259,6 @@
       toast.style.display = "block";
       setTimeout(() => (toast.style.display = "none"), 3000);
     }
-
-    document.getElementById('themeSwitch').addEventListener('change', function () {
-      if (this.checked) {
-        document.body.classList.remove('light-theme');
-        document.body.classList.add('dark-theme');
-      } else {
-        document.body.classList.remove('dark-theme');
-        document.body.classList.add('light-theme');
-      }
-    });
 
     function showNotificationPopup(msg = "New transaction received!") {
       const popup = document.getElementById("notifPopup");
