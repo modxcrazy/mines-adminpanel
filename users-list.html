@@ -8,262 +8,296 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body { background-color: #111; color: #fff; padding: 30px; }
-
-    .user-container { max-width: 1000px; margin: 0 auto; }
-    h2 { text-align: center; margin-bottom: 30px; color: #00e5ff; }
-
-    .controls {
-      display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; margin-bottom: 25px;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 30px;
     }
-    .controls input, .controls select {
-      flex: 1; min-width: 250px; padding: 14px 18px; font-size: 16px;
-      border-radius: 10px; border: none; outline: none;
-      background-color: #1f1f1f; color: #00e5ff;
-      box-shadow: 0 0 12px rgba(0, 229, 255, 0.25);
-      transition: 0.3s ease;
-    }
-
-    .controls input::placeholder { color: #aaa; }
-    .controls input:focus, .controls select:focus {
-      background-color: #282828;
-      box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
-    }
-
-    .loader {
-      text-align: center;
-      margin-top: 60px;
-    }
-    .loader div {
-      border: 4px solid #00e5ff;
-      border-top: 4px solid transparent;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
+    .container {
+      max-width: 1000px;
       margin: auto;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .no-users {
+    h2 {
+      color: #00e5ff;
       text-align: center;
-      margin-top: 30px;
-      color: #777;
-      font-size: 18px;
+      margin-bottom: 25px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+    }
+    .controls input,
+    .controls select,
+    .controls button {
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #1e1e1e;
+      color: #00e5ff;
+      font-weight: 600;
+      flex: 1;
+      min-width: 180px;
+    }
+    .controls button {
+      cursor: pointer;
+      background-color: #00e5ff;
+      color: #111;
     }
 
-    .user-list { display: flex; flex-direction: column; gap: 15px; }
+    .user-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
     .user-card {
-      background: #1e1e1e; padding: 20px;
-      border-radius: 10px; display: flex;
-      justify-content: space-between; align-items: center;
-      border-left: 5px solid #00e5ff;
-      transition: 0.3s;
+      background: #1e1e1e;
+      padding: 16px;
+      border-left: 4px solid #00e5ff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px;
     }
-    .user-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    .user-info p {
+      margin: 3px 0;
     }
-
-    .user-info p { margin: 4px 0; font-size: 16px; }
     .block-btn {
-      background-color: #ff1744; color: white; border: none;
-      padding: 10px 16px; border-radius: 6px;
-      cursor: pointer; font-weight: 600;
-      transition: background 0.3s ease;
+      background: #ff1744;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #fff;
+      font-weight: bold;
     }
-    .block-btn:hover { background-color: #e60033; }
-
+    .block-btn.unblock {
+      background-color: #00c853;
+    }
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #00e5ff;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 8px;
+      display: none;
+      z-index: 999;
+    }
+    #loader {
+      text-align: center;
+      margin-top: 50px;
+    }
     .pagination {
-      margin-top: 30px; text-align: center;
+      text-align: center;
+      margin-top: 20px;
     }
     .pagination button {
-      background: #00e5ff; color: #000;
-      border: none; padding: 8px 16px;
-      border-radius: 6px; margin: 0 6px;
-      cursor: pointer; font-weight: 600;
+      background: #222;
+      color: #00e5ff;
+      border: none;
+      padding: 10px;
+      margin: 0 5px;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    .pagination button.active {
-      background: #fff; color: #111;
+    #noUsersMsg {
+      text-align: center;
+      font-size: 18px;
+      color: #aaa;
+      margin-top: 20px;
     }
-
-    #toast {
-      position: fixed; top: 20px; right: 20px;
-      background: #00e5ff; color: #000;
-      padding: 14px 22px; border-radius: 8px;
-      font-weight: 600; box-shadow: 0 5px 12px rgba(0,0,0,0.3);
-      opacity: 0; transform: translateY(-30px);
-      transition: all 0.5s ease; z-index: 9999; display: none;
+    .blocked-count {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: bold;
+      color: #ff1744;
     }
   </style>
 </head>
 <body>
-  <div class="user-container">
+  <div class="container">
     <h2>All Registered Users</h2>
     <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by name, email or status..." />
+      <input type="text" id="searchInput" placeholder="Search by name, email or status" />
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="active">Active</option>
+        <option value="blocked">Blocked</option>
+      </select>
       <select id="sortSelect">
-        <option value="default">Sort by</option>
+        <option value="">Sort</option>
         <option value="name">Name</option>
         <option value="email">Email</option>
         <option value="date">Registration Date</option>
       </select>
+      <button onclick="exportToCSV()">Export CSV</button>
     </div>
-    <div id="loader" class="loader"><div></div></div>
-    <div id="userList" class="user-list" style="display:none;"></div>
-    <div id="noUsers" class="no-users" style="display:none;">No users found</div>
-    <div class="pagination" id="paginationControls"></div>
+
+    <div class="blocked-count" id="blockedCount"></div>
+    <div id="loader">Loading users...</div>
+    <div id="userList" class="user-list"></div>
+    <div id="noUsersMsg" style="display: none;">No users found</div>
+
+    <div class="pagination" id="pagination"></div>
   </div>
+
   <div id="toast"></div>
 
   <script src="firebase-config.js"></script>
-<script>
-  const db = firebase.database();
-  const searchInput = document.getElementById("searchInput");
-  const sortSelect = document.getElementById("sortSelect");
+  <script>
+    const db = firebase.database();
+    const USERS_PER_PAGE = 5;
 
-  let currentPage = 1;
-  const itemsPerPage = 5;
-  let allUserData = {};
+    let usersData = {};
+    let filteredUserKeys = [];
+    let currentPage = 1;
+    let currentUser = null;
+    let isAdmin = false;
 
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    toast.innerText = message;
-    toast.style.display = "block";
-    setTimeout(() => {
-      toast.style.opacity = 1;
-      toast.style.transform = "translateY(0)";
-    }, 100);
-    setTimeout(() => {
-      toast.style.opacity = 0;
-      toast.style.transform = "translateY(-30px)";
-      setTimeout(() => {
-        toast.style.display = "none";
-      }, 500);
-    }, 3000);
-  }
-
-  function filterUsers(users, query) {
-    query = query.toLowerCase();
-    return Object.keys(users).filter(uid => {
-      const user = users[uid];
-      return (
-        (user.name && user.name.toLowerCase().includes(query)) ||
-        (user.email && user.email.toLowerCase().includes(query)) ||
-        (user.status && user.status.toLowerCase().includes(query))
-      );
-    });
-  }
-
-  function toggleBlock(uid, status) {
-    const isBlocked = status === "blocked";
-    const newStatus = isBlocked ? "active" : "blocked";
-    db.ref("users/" + uid + "/status").set(newStatus)
-    .then(() => {
-      showToast(`User ${isBlocked ? "unblocked" : "blocked"} successfully!`);
-      fetchUsers();
-    })
-    .catch(() => showToast("Error occurred!"));
-  }
-
-  function renderPagination(filteredKeys) {
-    const totalPages = Math.ceil(filteredKeys.length / itemsPerPage);
-    const paginationDiv = document.getElementById("paginationControls");
-    paginationDiv.innerHTML = "";
-
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement("button");
-      btn.textContent = i;
-      if (i === currentPage) btn.classList.add("active");
-      btn.onclick = () => {
-        currentPage = i;
-        renderUsers(filteredKeys);
-      };
-      paginationDiv.appendChild(btn);
-    }
-  }
-
-  function renderUsers(filteredKeys) {
-    const userListDiv = document.getElementById("userList");
-    const noUsers = document.getElementById("noUsers");
-    const loader = document.getElementById("loader");
-
-    loader.style.display = "none";
-    userListDiv.innerHTML = "";
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const pageKeys = filteredKeys.slice(start, end);
-
-    if (pageKeys.length === 0) {
-      userListDiv.style.display = "none";
-      noUsers.style.display = "block";
-      return;
-    }
-
-    userListDiv.style.display = "flex";
-    noUsers.style.display = "none";
-
-    pageKeys.forEach(uid => {
-      const user = allUserData[uid];
-      const card = document.createElement("div");
-      card.className = "user-card";
-      card.innerHTML = `
-        <div class="user-info">
-          <p><strong>Name:</strong> ${user.name || "N/A"}</p>
-          <p><strong>Email:</strong> ${user.email}</p>
-          <p><strong>Status:</strong> ${user.status || "active"}</p>
-          <p><strong>Registered:</strong> ${user.registrationDate || ""}</p>
-        </div>
-        <button class="block-btn" onclick="toggleBlock('${uid}', '${user.status || "active"}')">
-          ${user.status === "blocked" ? "Unblock" : "Block"}
-        </button>
-      `;
-      userListDiv.appendChild(card);
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        db.ref("admins/" + user.uid).once("value", snap => {
+          isAdmin = snap.exists();
+          if (isAdmin) loadUsers();
+          else alert("Access Denied: Admins only");
+        });
+      } else {
+        alert("Not logged in.");
+      }
     });
 
-    renderPagination(filteredKeys);
-  }
+    function loadUsers() {
+      db.ref("users").on("value", snapshot => {
+        usersData = snapshot.val() || {};
+        applyFilters();
+      });
+    }
 
-  function fetchUsers() {
-    const loader = document.getElementById("loader");
-    const userListDiv = document.getElementById("userList");
-    const noUsers = document.getElementById("noUsers");
+    function applyFilters() {
+      let search = document.getElementById("searchInput").value.toLowerCase();
+      let status = document.getElementById("statusFilter").value;
+      let sort = document.getElementById("sortSelect").value;
 
-    loader.style.display = "block";
-    userListDiv.style.display = "none";
-    noUsers.style.display = "none";
+      filteredUserKeys = Object.keys(usersData).filter(uid => {
+        let user = usersData[uid];
+        let matchSearch = !search || (user.name || "").toLowerCase().includes(search) || (user.email || "").toLowerCase().includes(search);
+        let matchStatus = !status || (user.status || "active") === status;
+        return matchSearch && matchStatus;
+      });
 
-    db.ref("users").once("value", snapshot => {
-      const users = snapshot.val() || {};
-      allUserData = users;
-
-      const query = searchInput.value.trim().toLowerCase();
-      const sort = sortSelect.value;
-
-      let filteredKeys = filterUsers(users, query);
-
-      if (sort === "name") {
-        filteredKeys.sort((a, b) => (users[a].name || "").localeCompare(users[b].name || ""));
-      } else if (sort === "email") {
-        filteredKeys.sort((a, b) => (users[a].email || "").localeCompare(users[b].email || ""));
-      } else if (sort === "date") {
-        filteredKeys.sort((a, b) => (users[a].registrationDate || "").localeCompare(users[b].registrationDate || ""));
+      if (sort) {
+        filteredUserKeys.sort((a, b) => {
+          const valA = (usersData[a][sort] || "").toLowerCase();
+          const valB = (usersData[b][sort] || "").toLowerCase();
+          return valA.localeCompare(valB);
+        });
       }
 
       currentPage = 1;
-      renderUsers(filteredKeys);
-    });
-  }
+      renderUsers();
+    }
 
-  searchInput.addEventListener("input", fetchUsers);
-  sortSelect.addEventListener("change", fetchUsers);
-  fetchUsers();
-</script>
+    function renderUsers() {
+      const list = document.getElementById("userList");
+      const loader = document.getElementById("loader");
+      const noMsg = document.getElementById("noUsersMsg");
+      const blockedCountDiv = document.getElementById("blockedCount");
+      const start = (currentPage - 1) * USERS_PER_PAGE;
+      const end = start + USERS_PER_PAGE;
+      const pageKeys = filteredUserKeys.slice(start, end);
+
+      loader.style.display = "none";
+      list.innerHTML = "";
+
+      if (filteredUserKeys.length === 0) {
+        noMsg.style.display = "block";
+        document.getElementById("pagination").innerHTML = "";
+        blockedCountDiv.innerText = "";
+        return;
+      }
+
+      noMsg.style.display = "none";
+
+      let blockedCount = 0;
+
+      pageKeys.forEach(uid => {
+        const user = usersData[uid];
+        if (user.status === "blocked") blockedCount++;
+        const card = document.createElement("div");
+        card.className = "user-card";
+        card.innerHTML = `
+          <div class="user-info">
+            <p><strong>Name:</strong> ${user.name || "N/A"}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Status:</strong> ${user.status || "active"}</p>
+            <p><strong>Registered:</strong> ${user.registrationDate || "-"}</p>
+          </div>
+          <button class="block-btn ${user.status === "blocked" ? "unblock" : ""}" onclick="toggleBlock('${uid}')">
+            ${user.status === "blocked" ? "Unblock" : "Block"}
+          </button>
+        `;
+        list.appendChild(card);
+      });
+
+      blockedCountDiv.innerText = `Blocked Users in this page: ${blockedCount}`;
+
+      const totalPages = Math.ceil(filteredUserKeys.length / USERS_PER_PAGE);
+      let paginationHTML = "";
+      for (let i = 1; i <= totalPages; i++) {
+        paginationHTML += `<button onclick="goToPage(${i})" ${i === currentPage ? 'style="background:#00e5ff;color:#111"' : ''}>${i}</button>`;
+      }
+      document.getElementById("pagination").innerHTML = paginationHTML;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      renderUsers();
+    }
+
+    function toggleBlock(uid) {
+      const currentStatus = usersData[uid].status || "active";
+      const newStatus = currentStatus === "blocked" ? "active" : "blocked";
+      db.ref("users/" + uid + "/status").set(newStatus).then(() => {
+        showToast(`User ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully!`);
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.innerText = message;
+      toast.style.display = "block";
+      setTimeout(() => {
+        toast.style.display = "none";
+      }, 3000);
+    }
+
+    function exportToCSV() {
+      let csv = "Name,Email,Status,Registration Date\n";
+      filteredUserKeys.forEach(uid => {
+        let u = usersData[uid];
+        csv += `"${u.name}","${u.email}","${u.status}","${u.registrationDate}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "users.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    document.getElementById("statusFilter").addEventListener("change", applyFilters);
+    document.getElementById("sortSelect").addEventListener("change", applyFilters);
+  </script>
 </body>
 </html>
