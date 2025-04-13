@@ -140,3 +140,91 @@ function renderPieChart(success, pending, failed) {
     options: { responsive: true }
   });
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+      // User Growth Chart
+      const userCtx = document.getElementById('userChart').getContext('2d');
+      const userChart = new Chart(userCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'New Users',
+            data: [120, 190, 170, 220, 260, 300],
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Pie Chart
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      const pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending', 'Failed'],
+          datasets: [{
+            data: [300, 50, 20],
+            backgroundColor: [
+              'rgba(76, 201, 240, 0.8)',
+              'rgba(248, 150, 30, 0.8)',
+              'rgba(247, 37, 133, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Sample data for cards
+      document.getElementById('userCount').textContent = '1,248';
+      document.getElementById('transactionCount').textContent = '370';
+      document.getElementById('amountSum').textContent = '₹84,560';
+
+      // Logout button
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        showToast('Logout successful!');
+        // Add actual logout logic here
+      });
+    });
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.className = 'toast-success';
+      toast.querySelector('.toast-icon').className = 'fas fa-check-circle toast-icon';
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
