@@ -2,11 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Manager Panel</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --white: #ffffff;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -15,184 +31,306 @@
     }
 
     body {
-      background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 50px 20px;
-      color: #fff;
+      justify-content: center;
+      padding: 2rem;
+      color: var(--light);
     }
 
-    h2 {
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h2 {
       font-size: 2rem;
-      margin-bottom: 30px;
-      color: #00ffe1;
-      text-shadow: 0 2px 10px rgba(0,255,225,0.4);
+      font-weight: 600;
+      color: var(--primary-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      color: var(--gray);
     }
 
     .input-group {
       display: flex;
-      gap: 12px;
-      margin-bottom: 40px;
+      gap: 1rem;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
-      justify-content: center;
     }
 
     input {
-      padding: 14px 18px;
-      font-size: 16px;
-      border-radius: 10px;
+      flex: 1;
+      min-width: 200px;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border-radius: 8px;
       background: rgba(255, 255, 255, 0.1);
-      color: #00ffe1;
-      border: 1px solid rgba(0,255,225,0.3);
-      backdrop-filter: blur(10px);
+      color: var(--light);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       outline: none;
-      min-width: 260px;
-      box-shadow: inset 0 0 10px rgba(0,255,225,0.1);
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
 
     input::placeholder {
-      color: #99f0ff;
+      color: rgba(255, 255, 255, 0.5);
     }
 
-    button {
-      padding: 14px 22px;
-      font-size: 16px;
+    .btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
       border: none;
-      border-radius: 10px;
-      background: linear-gradient(to right, #00ffe1, #00b8d4);
-      color: #000;
-      font-weight: bold;
+      border-radius: 8px;
+      font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0,255,225,0.3);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
 
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(0,255,225,0.5);
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-danger {
+      background: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(247, 37, 133, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: white;
     }
 
     .admin-list {
       width: 100%;
-      max-width: 600px;
-      margin-top: 20px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.1);
     }
 
     .admin-card {
       background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      margin: 10px 0;
-      padding: 16px 20px;
-      border-radius: 12px;
+      border-radius: 8px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-left: 5px solid #00ffe1;
-      transition: 0.3s ease;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary);
     }
 
     .admin-card:hover {
-      transform: translateY(-3px);
-      background: rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(5px);
     }
 
-    .remove-btn {
-      background-color: #ff1744;
-      color: white;
-      padding: 8px 14px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
-    .remove-btn:hover {
-      background-color: #d50000;
+    .admin-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(67, 97, 238, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-light);
     }
 
+    .admin-details h4 {
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-details p {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    /* Toast Notification */
     #toast {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #00ffe1;
-      color: #000;
-      padding: 14px 22px;
-      border-radius: 10px;
-      font-weight: 600;
-      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
-      opacity: 0;
-      transform: translateY(-30px);
-      transition: all 0.5s ease;
+      background: var(--dark);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
       z-index: 9999;
-      display: none;
     }
 
-    @media (max-width: 480px) {
+    #toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-icon {
+      font-size: 1.25rem;
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1.5rem;
+      }
+      
       .input-group {
         flex-direction: column;
-        align-items: center;
+      }
+      
+      input, .btn {
+        width: 100%;
+      }
+      
+      .admin-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .btn-danger {
+        align-self: flex-end;
       }
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div class="header">
+      <h2><i class="fas fa-user-shield"></i> Admin Manager</h2>
+      <p>Manage administrator access and permissions</p>
+    </div>
 
-  <h2>Admin Control Panel</h2>
+    <div class="input-group">
+      <input type="text" id="uidInput" placeholder="Enter user UID" />
+      <button class="btn btn-primary" onclick="addAdmin()">
+        <i class="fas fa-plus"></i> Add Admin
+      </button>
+    </div>
 
-  <div class="input-group">
-    <input type="text" id="uidInput" placeholder="Enter UID to grant/remove admin access" />
-    <button onclick="addAdmin()">Add Admin</button>
+    <div class="admin-list" id="adminList">
+      <!-- Admins will be loaded here -->
+    </div>
   </div>
 
-  <div class="admin-list" id="adminList"></div>
+  <!-- Toast Notification -->
+  <div id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <div class="toast-content">Admin added successfully!</div>
+  </div>
 
-  <div id="toast"></div>
-
-  <script src="firebase-config.js"></script>
+<script src="firebase-config.js"></script>
   <script>
     const db = firebase.database();
 
-    function showToast(message) {
+    function showToast(message, isError = false) {
       const toast = document.getElementById("toast");
-      toast.innerText = message;
-      toast.style.display = "block";
+      toast.className = isError ? "toast-error" : "toast-success";
+      toast.querySelector('.toast-icon').className = isError 
+        ? "fas fa-exclamation-circle toast-icon" 
+        : "fas fa-check-circle toast-icon";
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add("show");
+      
       setTimeout(() => {
-        toast.style.opacity = 1;
-        toast.style.transform = "translateY(0)";
-      }, 100);
-      setTimeout(() => {
-        toast.style.opacity = 0;
-        toast.style.transform = "translateY(-30px)";
-        setTimeout(() => {
-          toast.style.display = "none";
-        }, 500);
+        toast.classList.remove("show");
       }, 3000);
     }
 
     function addAdmin() {
       const uid = document.getElementById("uidInput").value.trim();
-      if (!uid) return showToast("Please enter a UID");
+      if (!uid) {
+        showToast("Please enter a UID", true);
+        return;
+      }
 
-      db.ref("admins/" + uid).set(true)
-        .then(() => {
-          showToast("Admin added successfully!");
-          document.getElementById("uidInput").value = "";
-          fetchAdmins();
-        })
-        .catch(() => showToast("Failed to add admin"));
+      // Check if UID exists in users
+      db.ref("users/" + uid).once("value", userSnapshot => {
+        if (!userSnapshot.exists()) {
+          showToast("User with this UID doesn't exist", true);
+          return;
+        }
+
+        // Add as admin
+        db.ref("admins/" + uid).set(true)
+          .then(() => {
+            showToast("Admin added successfully!");
+            document.getElementById("uidInput").value = "";
+            fetchAdmins();
+          })
+          .catch(error => {
+            console.error("Error adding admin:", error);
+            showToast("Failed to add admin", true);
+          });
+      });
     }
 
     function removeAdmin(uid) {
-      db.ref("admins/" + uid).remove()
-        .then(() => {
-          showToast("Admin removed!");
-          fetchAdmins();
-        })
-        .catch(() => showToast("Failed to remove admin"));
+      if (confirm("Are you sure you want to remove this admin?")) {
+        db.ref("admins/" + uid).remove()
+          .then(() => {
+            showToast("Admin removed successfully!");
+            fetchAdmins();
+          })
+          .catch(error => {
+            console.error("Error removing admin:", error);
+            showToast("Failed to remove admin", true);
+          });
+      }
     }
 
     function fetchAdmins() {
@@ -201,25 +339,54 @@
         const list = document.getElementById("adminList");
         list.innerHTML = "";
 
-        if (!data) {
-          list.innerHTML = "<p style='text-align:center;'>No admins found.</p>";
+        if (!data || Object.keys(data).length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-user-lock"></i>
+              <h3>No Admins Found</h3>
+              <p>Add admins by entering their UID above</p>
+            </div>
+          `;
           return;
         }
 
-        Object.keys(data).forEach(uid => {
-          const card = document.createElement("div");
-          card.className = "admin-card";
-          card.innerHTML = `
-            <span><strong>UID:</strong> ${uid}</span>
-            <button class="remove-btn" onclick="removeAdmin('${uid}')">Remove</button>
-          `;
-          list.appendChild(card);
+        // Get user details for each admin
+        const adminPromises = Object.keys(data).map(uid => {
+          return db.ref("users/" + uid).once("value").then(userSnapshot => {
+            return {
+              uid,
+              user: userSnapshot.val()
+            };
+          });
+        });
+
+        Promise.all(adminPromises).then(admins => {
+          admins.forEach(({uid, user}) => {
+            const card = document.createElement("div");
+            card.className = "admin-card";
+            card.innerHTML = `
+              <div class="admin-info">
+                <div class="admin-icon">
+                  <i class="fas fa-user-cog"></i>
+                </div>
+                <div class="admin-details">
+                  <h4>${user?.name || 'Admin User'}</h4>
+                  <p>UID: ${uid}</p>
+                  ${user?.email ? `<p>${user.email}</p>` : ''}
+                </div>
+              </div>
+              <button class="btn btn-danger" onclick="removeAdmin('${uid}')">
+                <i class="fas fa-trash-alt"></i> Remove
+              </button>
+            `;
+            list.appendChild(card);
+          });
         });
       });
     }
 
+    // Initialize
     fetchAdmins();
   </script>
-
 </body>
 </html>
