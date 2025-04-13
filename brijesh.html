@@ -214,7 +214,20 @@
       }
     }
 
-    window.confirmTxn = (key) => update(ref(db, `transactions/${key}`), { status: "Confirmed" });
+    window.confirmTxn = async (key) => {
+      const txnRef = ref(db, `transactions/${key}`);
+      onValue(txnRef, async (snapshot) => {
+        const txn = snapshot.val();
+        if (!txn || !txn.uid) return;
+
+        const updates = {};
+        updates[`transactions/${key}/status`] = "Confirmed";
+        updates[`users/${txn.uid}/status`] = "active";
+        
+        await update(ref(db), updates);
+      }, { onlyOnce: true });
+    };
+    //window.confirmTxn = (key) => update(ref(db, `transactions/${key}`), { status: "Confirmed" });
     window.revertTxn = (key) => update(ref(db, `transactions/${key}`), { status: "Pending" });
 
     searchInput.addEventListener("input", () => {
