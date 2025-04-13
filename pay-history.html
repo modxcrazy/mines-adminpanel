@@ -271,10 +271,28 @@
     searchInput.addEventListener("input", () => { currentPage = 1; filterAndRender(); });
     statusFilter.addEventListener("change", () => { currentPage = 1; filterAndRender(); });
 
+    /*
     window.updateStatus = (id, status) => {
       update(ref(db, "transactions/" + id), { status }).then(() => showToast(`${status} successfully!`));
     };
+*/
+    window.updateStatus = (id, status) => {
+  const txn = transactions.find(t => t.id === id);
+  if (!txn) return;
 
+  update(ref(db, "transactions/" + id), { status }).then(() => {
+    if (status === "Approved" && txn.uid) {
+      update(ref(db, "users/" + txn.uid), { status: "active" }).then(() => {
+        showToast("Approved and user activated!");
+      }).catch(() => {
+        showToast("Approved, but failed to update user status.");
+      });
+    } else {
+      showToast(`${status} successfully!`);
+    }
+  });
+};
+    
     window.deleteTransaction = (id) => {
       if (confirm("Delete this transaction?")) {
         remove(ref(db, "transactions/" + id)).then(() => showToast("Deleted successfully!"));
