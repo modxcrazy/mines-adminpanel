@@ -2,32 +2,31 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebas
 import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-// Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-    storageBucket: "mines-botai.firebasestorage.app",
-    messagingSenderId: "175710322906",
-    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
-  };
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+  authDomain: "mines-botai.firebaseapp.com",
+  databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+  projectId: "mines-botai",
+  storageBucket: "mines-botai.firebasestorage.app",
+  messagingSenderId: "175710322906",
+  appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+};
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// -------------------- Auth Guard --------------------
+// Auth Guard
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
     const adminRef = ref(db, 'admins/' + uid);
-    
     get(adminRef).then((snapshot) => {
       if (snapshot.exists()) {
         console.log("Admin access granted");
-        document.getElementById('admin-content').style.display = 'block';
+        const adminContent = document.getElementById('admin-content');
+        if (adminContent) adminContent.style.display = 'block';
         loadDashboardData();
       } else {
         alert("You are not authorized!");
@@ -42,8 +41,8 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// -------------------- Admin Logout --------------------
-document.getElementById("logoutBtn").addEventListener("click", () => {
+// Logout
+document.getElementById("logoutBtn")?.addEventListener("click", () => {
   signOut(auth).then(() => {
     window.location.href = "admin-login.html";
   }).catch((error) => {
@@ -51,17 +50,19 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
   });
 });
 
-// -------------------- Dashboard Loader --------------------
+// Load Dashboard
 function loadDashboardData() {
   const monthWiseUsers = {
     Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0,
     Jun: 0, Jul: 0, Aug: 0, Sep: 0, Oct: 0, Nov: 0, Dec: 0
   };
 
-  // --- Load Users Count & Chart ---
+  // Users Data
   const usersRef = ref(db, "users");
   onValue(usersRef, (snapshot) => {
     const users = snapshot.val();
+    console.log("Users Data:", users);
+
     const count = users ? Object.keys(users).length : 0;
     document.getElementById("userCount").textContent = count;
 
@@ -82,7 +83,7 @@ function loadDashboardData() {
     onlyOnce: true
   });
 
-  // --- Load Transactions Data ---
+  // Transactions Data
   const transactionsRef = ref(db, "transactions");
   onValue(transactionsRef, (snapshot) => {
     let totalAmount = 0;
@@ -91,7 +92,7 @@ function loadDashboardData() {
 
     snapshot.forEach((child) => {
       const tx = child.val();
-      if (tx.amount) totalAmount += parseFloat(tx.amount);
+      if (tx.amount) totalAmount += parseFloat(tx.amount || 0);
       totalCount++;
 
       if (tx.status === "Success") success++;
@@ -107,18 +108,21 @@ function loadDashboardData() {
   });
 }
 
-// -------------------- Chart Rendering --------------------
+// Chart Drawing
 function renderLineChart(dataObj) {
+  const canvas = document.getElementById('userChart');
+  if (!canvas) return console.warn('userChart canvas missing');
+
   const labels = Object.keys(dataObj);
   const data = Object.values(dataObj);
 
-  new Chart(document.getElementById('userChart').getContext('2d'), {
+  new Chart(canvas.getContext('2d'), {
     type: 'line',
     data: {
-      labels: labels,
+      labels,
       datasets: [{
         label: 'Users by Month',
-        data: data,
+        data,
         backgroundColor: '#00ffe0',
         borderColor: '#00ffe0',
         fill: false
@@ -129,7 +133,10 @@ function renderLineChart(dataObj) {
 }
 
 function renderPieChart(success, pending, failed) {
-  new Chart(document.getElementById('pieChart').getContext('2d'), {
+  const canvas = document.getElementById('pieChart');
+  if (!canvas) return console.warn('pieChart canvas missing');
+
+  new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: ['Success', 'Pending', 'Failed'],
