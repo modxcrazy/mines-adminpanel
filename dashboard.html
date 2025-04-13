@@ -9,16 +9,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary: #4361ee;
-      --primary-light: #4895ef;
-      --primary-dark: #3a0ca3;
-      --success: #4cc9f0;
-      --danger: #f72585;
-      --warning: #f8961e;
-      --dark: #1a1a2e;
-      --darker: #16213e;
-      --light: #f8f9fa;
-      --gray: #6c757d;
+      --primary: #6366f1;
+      --primary-light: #818cf8;
+      --primary-dark: #4f46e5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+      --dark: #0f172a;
+      --darker: #020617;
+      --light: #f1f5f9;
+      --gray: #64748b;
+      --dark-gray: #334155;
+      --card-bg: #1e293b;
+      --card-border: #334155;
       --white: #ffffff;
     }
 
@@ -30,8 +34,8 @@
     }
 
     body {
-      background-color: #f8fafc;
-      color: #333;
+      background-color: var(--darker);
+      color: var(--light);
       min-height: 100vh;
     }
 
@@ -42,7 +46,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(2, 6, 23, 0.9);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -54,7 +58,7 @@
     .loader {
       width: 48px;
       height: 48px;
-      border: 5px solid rgba(67, 97, 238, 0.2);
+      border: 5px solid rgba(99, 102, 241, 0.2);
       border-radius: 50%;
       border-top-color: var(--primary);
       animation: spin 1s ease-in-out infinite;
@@ -66,7 +70,7 @@
     }
 
     .loader-text {
-      color: var(--primary-dark);
+      color: var(--primary-light);
       font-weight: 500;
       font-size: 18px;
     }
@@ -91,17 +95,17 @@
       align-items: center;
       margin-bottom: 30px;
       padding-bottom: 20px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
+      border-bottom: 1px solid var(--dark-gray);
     }
 
     .header h1 {
-      font-size: 24px;
-      color: var(--primary-dark);
-      font-weight: 600;
-      background: linear-gradient(to right, var(--primary), var(--primary-dark));
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(to right, var(--primary-light), var(--primary));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      letter-spacing: 0.5px;
     }
 
     .logout-btn {
@@ -115,13 +119,14 @@
       align-items: center;
       gap: 8px;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 6px rgba(247, 37, 133, 0.1);
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.15);
+      font-weight: 500;
     }
 
     .logout-btn:hover {
-      background-color: #e63946;
+      background-color: #dc2626;
       transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(230, 57, 70, 0.2);
+      box-shadow: 0 6px 12px rgba(220, 38, 38, 0.25);
     }
 
     .stats-container {
@@ -132,14 +137,14 @@
     }
 
     .stat-card {
-      background-color: white;
+      background-color: var(--card-bg);
       border-radius: 12px;
       padding: 25px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.03);
+      border: 1px solid var(--card-border);
     }
 
     .stat-card::before {
@@ -149,12 +154,13 @@
       left: 0;
       width: 4px;
       height: 100%;
-      background: linear-gradient(to bottom, var(--primary), var(--success));
+      background: linear-gradient(to bottom, var(--primary), var(--info));
     }
 
     .stat-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      border-color: var(--primary-light);
     }
 
     .stat-card h3 {
@@ -162,20 +168,29 @@
       color: var(--gray);
       margin-bottom: 10px;
       font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .stat-card .value {
       font-size: 32px;
       font-weight: 600;
-      color: var(--primary-dark);
+      color: var(--white);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .stat-card .value i {
-      font-size: 24px;
+      font-size: 28px;
       color: var(--primary-light);
+      background: rgba(99, 102, 241, 0.1);
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .action-container {
@@ -186,10 +201,10 @@
     }
 
     .action-card {
-      background-color: white;
+      background-color: var(--card-bg);
       border-radius: 12px;
       padding: 25px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       transition: all 0.3s ease;
       cursor: pointer;
       display: flex;
@@ -197,7 +212,7 @@
       justify-content: space-between;
       position: relative;
       overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.03);
+      border: 1px solid var(--card-border);
     }
 
     .action-card::after {
@@ -207,7 +222,7 @@
       left: 0;
       width: 100%;
       height: 4px;
-      background: linear-gradient(to right, var(--primary), var(--success));
+      background: linear-gradient(to right, var(--primary), var(--info));
       transform: scaleX(0);
       transform-origin: left;
       transition: transform 0.3s ease;
@@ -219,7 +234,8 @@
 
     .action-card:hover {
       transform: translateY(-3px);
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      border-color: var(--primary-light);
     }
 
     .action-card .content {
@@ -228,7 +244,7 @@
 
     .action-card h3 {
       font-size: 18px;
-      color: var(--primary-dark);
+      color: var(--white);
       margin-bottom: 8px;
       font-weight: 600;
     }
@@ -243,14 +259,21 @@
       width: 60px;
       height: 60px;
       border-radius: 12px;
-      background: linear-gradient(135deg, rgba(67, 97, 238, 0.1), rgba(76, 201, 240, 0.1));
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(59, 130, 246, 0.1));
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--primary);
+      color: var(--primary-light);
       font-size: 24px;
       margin-left: 20px;
       flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .action-card:hover .icon {
+      background: linear-gradient(135deg, var(--primary), var(--info));
+      color: white;
+      transform: scale(1.1);
     }
 
     .charts-container {
@@ -261,17 +284,17 @@
     }
 
     .chart-card {
-      background-color: white;
+      background-color: var(--card-bg);
       border-radius: 12px;
       padding: 25px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
-      border: 1px solid rgba(0,0,0,0.03);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--card-border);
     }
 
     .chart-card h2 {
       font-size: 18px;
       margin-bottom: 20px;
-      color: var(--primary-dark);
+      color: var(--white);
       font-weight: 600;
     }
 
@@ -296,7 +319,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
       opacity: 0;
       transform: translateY(20px);
       transition: all 0.3s ease;
@@ -310,6 +333,10 @@
 
     .toast-error {
       background-color: var(--danger);
+    }
+
+    .toast-warning {
+      background-color: var(--warning);
     }
 
     .toast-icon {
@@ -342,6 +369,25 @@
       .action-card .icon {
         margin: 15px 0 0;
       }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-light);
     }
   </style>
 </head>
@@ -495,12 +541,17 @@
             loadDashboardData();
             setTimeout(hideLoader, 1000); // Simulate loading for better UX
           } else {
-            alert("You are not authorized!");
-            window.location.href = "admin-login.html";
+            showToast("You are not authorized!", true);
+            setTimeout(() => {
+              window.location.href = "admin-login.html";
+            }, 1500);
           }
         }).catch((error) => {
           console.error("Admin check failed:", error);
-          window.location.href = "admin-login.html";
+          showToast("Authentication error!", true);
+          setTimeout(() => {
+            window.location.href = "admin-login.html";
+          }, 1500);
         });
       } else {
         window.location.href = "admin-login.html";
@@ -586,13 +637,13 @@
           datasets: [{
             label: 'Users by Month',
             data,
-            backgroundColor: 'rgba(67, 97, 238, 0.1)',
-            borderColor: 'rgba(67, 97, 238, 1)',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            borderColor: 'rgba(99, 102, 241, 1)',
             borderWidth: 2,
             tension: 0.4,
             fill: true,
-            pointBackgroundColor: 'white',
-            pointBorderColor: 'rgba(67, 97, 238, 1)',
+            pointBackgroundColor: 'rgba(30, 41, 59, 1)',
+            pointBorderColor: 'rgba(99, 102, 241, 1)',
             pointBorderWidth: 2,
             pointRadius: 4,
             pointHoverRadius: 6
@@ -606,11 +657,12 @@
               position: 'top',
               labels: {
                 usePointStyle: true,
-                padding: 20
+                padding: 20,
+                color: 'rgba(241, 245, 249, 0.8)'
               }
             },
             tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
               titleFont: {
                 size: 14,
                 weight: 'bold'
@@ -619,17 +671,20 @@
                 size: 12
               },
               padding: 12,
-              cornerRadius: 8
+              cornerRadius: 8,
+              titleColor: 'rgba(241, 245, 249, 1)',
+              bodyColor: 'rgba(241, 245, 249, 0.8)'
             }
           },
           scales: {
             y: {
               beginAtZero: true,
               grid: {
-                color: 'rgba(0,0,0,0.05)'
+                color: 'rgba(100, 116, 139, 0.2)'
               },
               ticks: {
-                padding: 10
+                padding: 10,
+                color: 'rgba(241, 245, 249, 0.7)'
               }
             },
             x: {
@@ -637,7 +692,8 @@
                 display: false
               },
               ticks: {
-                padding: 10
+                padding: 10,
+                color: 'rgba(241, 245, 249, 0.7)'
               }
             }
           }
@@ -656,12 +712,13 @@
           datasets: [{
             data: [success, pending, failed],
             backgroundColor: [
-              'rgba(76, 201, 240, 0.8)',
-              'rgba(248, 150, 30, 0.8)',
-              'rgba(247, 37, 133, 0.8)'
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(239, 68, 68, 0.8)'
             ],
             borderWidth: 0,
-            hoverOffset: 10
+            hoverOffset: 10,
+            borderColor: 'rgba(30, 41, 59, 1)'
           }]
         },
         options: {
@@ -675,11 +732,12 @@
                 padding: 20,
                 font: {
                   size: 12
-                }
+                },
+                color: 'rgba(241, 245, 249, 0.8)'
               }
             },
             tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
               titleFont: {
                 size: 14,
                 weight: 'bold'
@@ -688,7 +746,9 @@
                 size: 12
               },
               padding: 12,
-              cornerRadius: 8
+              cornerRadius: 8,
+              titleColor: 'rgba(241, 245, 249, 1)',
+              bodyColor: 'rgba(241, 245, 249, 0.8)'
             }
           },
           cutout: '70%'
