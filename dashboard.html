@@ -443,12 +443,13 @@ function loadDashboardData() {
   onValue(usersRef, (snapshot) => {
     const users = snapshot.val();
     const count = users ? Object.keys(users).length : 0;
-    document.getElementById("userCount").textContent = count;
+    const userCountEl = document.getElementById("userCount");
+    if (userCountEl) userCountEl.textContent = count;
 
     if (users) {
       Object.values(users).forEach(user => {
-        const timestamp = user.createdAt || user.timestamp;
-        if (timestamp) {
+        const timestamp = parseInt(user.createdAt || user.timestamp);
+        if (!isNaN(timestamp)) {
           const date = new Date(timestamp);
           const month = date.toLocaleString('default', { month: 'short' });
           if (monthWiseUsers[month] !== undefined) {
@@ -457,6 +458,7 @@ function loadDashboardData() {
         }
       });
     }
+
     renderLineChart(monthWiseUsers);
   }, { onlyOnce: true });
 
@@ -469,10 +471,13 @@ function loadDashboardData() {
 
     snapshot.forEach((child) => {
       const tx = child.val();
-      if (tx.amount) totalAmount += parseFloat(tx.amount || 0);
+      if (!isNaN(parseFloat(tx.amount))) {
+        totalAmount += parseFloat(tx.amount);
+      }
       totalCount++;
-      if (tx.status === "Success") success++;
-      else if (tx.status === "Pending") pending++;
+      const status = (tx.status || "").toLowerCase();
+      if (status === "success") success++;
+      else if (status === "pending") pending++;
       else failed++;
     });
 
@@ -482,81 +487,73 @@ function loadDashboardData() {
   }, { onlyOnce: true });
 }
 
-    // Sample data for charts
-    document.addEventListener('DOMContentLoaded', function() {
-      // User Growth Chart
-      const userCtx = document.getElementById('userChart').getContext('2d');
-      const userChart = new Chart(userCtx, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [{
-            label: 'New Users',
-            data: [120, 190, 170, 220, 260, 300],
-            backgroundColor: 'rgba(67, 97, 238, 0.1)',
-            borderColor: 'rgba(67, 97, 238, 1)',
-            borderWidth: 2,
-            tension: 0.4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false,
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-
-      // Pie Chart
-      const pieCtx = document.getElementById('pieChart').getContext('2d');
-      const pieChart = new Chart(pieCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Completed', 'Pending', 'Failed'],
-          datasets: [{
-            data: [300, 50, 20],
-            backgroundColor: [
-              'rgba(76, 201, 240, 0.8)',
-              'rgba(248, 150, 30, 0.8)',
-              'rgba(247, 37, 133, 0.8)'
-            ],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'right',
-            }
-          },
-          cutout: '70%'
-        }
-      });
-
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.className = 'toast-success';
-      toast.querySelector('.toast-icon').className = 'fas fa-check-circle toast-icon';
-      toast.querySelector('.toast-content').textContent = message;
-      toast.classList.add('show');
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 3000);
+// Render Line Chart
+function renderLineChart(dataObj) {
+  const userCtx = document.getElementById('userChart').getContext('2d');
+  new Chart(userCtx, {
+    type: 'line',
+    data: {
+      labels: Object.keys(dataObj),
+      datasets: [{
+        label: 'New Users',
+        data: Object.values(dataObj),
+        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+        borderColor: 'rgba(67, 97, 238, 1)',
+        borderWidth: 2,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: { y: { beginAtZero: true } }
     }
+  });
+}
+
+// Render Pie Chart
+function renderPieChart(success, pending, failed) {
+  const pieCtx = document.getElementById('pieChart').getContext('2d');
+  new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Completed', 'Pending', 'Failed'],
+      datasets: [{
+        data: [success, pending, failed],
+        backgroundColor: [
+          'rgba(76, 201, 240, 0.8)',
+          'rgba(248, 150, 30, 0.8)',
+          'rgba(247, 37, 133, 0.8)'
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'right' }
+      },
+      cutout: '70%'
+    }
+  });
+}
+
+// Toast Function
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.className = 'toast-success';
+  toast.querySelector('.toast-icon').className = 'fas fa-check-circle toast-icon';
+  toast.querySelector('.toast-content').textContent = message;
+  toast.classList.add('show');
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
   </script>
 </body>
 </html>
