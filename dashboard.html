@@ -399,70 +399,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
-loadDashboardData();
-// Auth Check
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    const uid = user.uid;
-    const adminRef = ref(db, 'admins/' + uid);
-    get(adminRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        document.getElementById('admin-content').style.display = 'block';
-        loadDashboardData();
-      } else {
-        alert("You are not authorized!");
-        window.location.href = "admin-login.html";
-      }
-    }).catch((error) => {
-      console.error("Admin check failed:", error);
-      window.location.href = "admin-login.html";
-    });
-  } else {
-    window.location.href = "admin-login.html";
-  }
-});
-
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  signOut(auth).then(() => {
-    window.location.href = "admin-login.html";
-  }).catch((error) => {
-    alert("Logout failed: " + error.message);
-  });
-});
-
-// Load Dashboard
-function loadDashboardData() {
-  const monthWiseUsers = {
-    Jan: 0, Feb: 0, Mar: 0, Apr: 0, May: 0,
-    Jun: 0, Jul: 0, Aug: 0, Sep: 0, Oct: 0, Nov: 0, Dec: 0
-  };
-
-  // Load Users
-  const usersRef = ref(db, "users");
-  onValue(usersRef, (snapshot) => {
-    const users = snapshot.val();
-    const count = users ? Object.keys(users).length : 0;
-    const userCountEl = document.getElementById("userCount");
-    if (userCountEl) userCountEl.textContent = count;
-
-    if (users) {
-      Object.values(users).forEach(user => {
-        const timestamp = parseInt(user.createdAt || user.timestamp);
-        if (!isNaN(timestamp)) {
-          const date = new Date(timestamp);
-          const month = date.toLocaleString('default', { month: 'short' });
-          if (monthWiseUsers[month] !== undefined) {
-            monthWiseUsers[month]++;
-          }
-        }
-      });
-    }
-
-    renderLineChart(monthWiseUsers);
-  }, { onlyOnce: true });
-
-  // Load Transactions
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load Transactions
   const transactionsRef = ref(db, "transactions");
   onValue(transactionsRef, (snapshot) => {
     let totalAmount = 0;
@@ -487,60 +426,103 @@ function loadDashboardData() {
   }, { onlyOnce: true });
 }
 
-// Render Line Chart
-function renderLineChart(dataObj) {
-  const userCtx = document.getElementById('userChart').getContext('2d');
-  new Chart(userCtx, {
-    type: 'line',
-    data: {
-      labels: Object.keys(dataObj),
-      datasets: [{
-        label: 'New Users',
-        data: Object.values(dataObj),
-        backgroundColor: 'rgba(67, 97, 238, 0.1)',
-        borderColor: 'rgba(67, 97, 238, 1)',
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top' },
-        tooltip: { mode: 'index', intersect: false }
-      },
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-}
+      // Load Users
+  const usersRef = ref(db, "users");
+  onValue(usersRef, (snapshot) => {
+    const users = snapshot.val();
+    const count = users ? Object.keys(users).length : 0;
+    const userCountEl = document.getElementById("userCount");
+    if (userCountEl) userCountEl.textContent = count;
 
-// Render Pie Chart
-function renderPieChart(success, pending, failed) {
-  const pieCtx = document.getElementById('pieChart').getContext('2d');
-  new Chart(pieCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Completed', 'Pending', 'Failed'],
-      datasets: [{
-        data: [success, pending, failed],
-        backgroundColor: [
-          'rgba(76, 201, 240, 0.8)',
-          'rgba(248, 150, 30, 0.8)',
-          'rgba(247, 37, 133, 0.8)'
-        ],
-        borderWidth: 0
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'right' }
-      },
-      cutout: '70%'
-    }
-  });
-}
+    if (users) {
+      Object.values(users).forEach(user => {
+        const timestamp = parseInt(user.createdAt || user.timestamp);
+        if (!isNaN(timestamp)) {
+          const date = new Date(timestamp);
+          const month = date.toLocaleString('default', { month: 'short' });
+          if (monthWiseUsers[month] !== undefined) {
+            monthWiseUsers[month]++;
+          }
+        }
+      });
+    }                        
+      // User Growth Chart
+      const userCtx = document.getElementById('userChart').getContext('2d');
+      const userChart = new Chart(userCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'New Users',
+            data: [120, 190, 170, 220, 260, 300],
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Pie Chart
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      const pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending', 'Failed'],
+          datasets: [{
+            data: [300, 50, 20],
+            backgroundColor: [
+              'rgba(76, 201, 240, 0.8)',
+              'rgba(248, 150, 30, 0.8)',
+              'rgba(247, 37, 133, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Sample data for cards
+      document.getElementById('userCount').textContent = '1,248';
+      document.getElementById('transactionCount').textContent = '370';
+      document.getElementById('amountSum').textContent = '₹84,560';
+
+      // Logout button
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        showToast('Logout successful!');
+        signOut(auth).then(() => {
+          window.location.href = "admin-login.html";
+        }).catch((error) => {
+          alert("Logout failed: " + error.message);
+        });
+      });
+    
 
 // Toast Function
 function showToast(message) {
