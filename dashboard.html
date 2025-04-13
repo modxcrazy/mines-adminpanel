@@ -4,54 +4,356 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="dashboard.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #560bad;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --white: #ffffff;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    
+    body {
+      background-color: #f5f7fa;
+      color: var(--dark);
+    }
+    
+    .dashboard {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    /* Header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .dashboard-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #d3166d;
+    }
+    
+    /* Stats Cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    
+    .card p {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .card.total-users {
+      border-left: 4px solid var(--primary);
+    }
+    
+    .card.total-transactions {
+      border-left: 4px solid var(--info);
+    }
+    
+    .card.total-earnings {
+      border-left: 4px solid var(--success);
+    }
+    
+    /* Quick Links */
+    .quick-links {
+      margin-bottom: 2rem;
+    }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--dark);
+    }
+    
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .grid-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .grid-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      background-color: var(--primary);
+    }
+    
+    .grid-card:hover h4,
+    .grid-card:hover .icon {
+      color: white;
+    }
+    
+    .icon-text {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .icon {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      color: var(--primary);
+    }
+    
+    .grid-card h4 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--dark);
+      transition: color 0.3s ease;
+    }
+    
+    /* Charts */
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    @media (min-width: 992px) {
+      .charts {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+    
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    
+    .chart-container h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+    }
+    
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--dark);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateX(150%);
+      transition: transform 0.3s;
+      z-index: 9999;
+    }
+    
+    #toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast-icon {
+      font-size: 1.25rem;
+    }
+    
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+    
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+    
+    .toast-content {
+      font-size: 0.9rem;
+    }
+    
+    /* Loader */
+    #loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(67, 97, 238, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="dashboard" id="admin-content" style="display:none;">
-    <h2>Admin Dashboard</h2>
-
-    <!-- Logout Button -->
-    <div style="text-align: right; margin-bottom: 20px;">
-      <button id="logoutBtn" style="background: #ff005c; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-        Logout
-      </button>
+  <div class="dashboard" id="admin-content">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">Admin Dashboard</h1>
+      <div class="header-actions">
+        <button class="btn btn-primary">
+          <i class="fas fa-cog"></i>
+          Settings
+        </button>
+        <button id="logoutBtn" class="btn btn-danger">
+          <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </button>
+      </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="cards">
-      <div class="card"><h3>Total Users</h3><p id="userCount">0</p></div>
-      <div class="card"><h3>Total Transactions</h3><p id="transactionCount">0</p></div>
-      <div class="card"><h3>Total Earnings</h3><p id="amountSum">₹0</p></div>
+      <div class="card total-users">
+        <h3>Total Users</h3>
+        <p id="userCount">0</p>
+        <div class="card-trend">
+          <i class="fas fa-arrow-up text-success"></i>
+          <span>12% from last month</span>
+        </div>
+      </div>
+      <div class="card total-transactions">
+        <h3>Total Transactions</h3>
+        <p id="transactionCount">0</p>
+        <div class="card-trend">
+          <i class="fas fa-arrow-up text-success"></i>
+          <span>24% from last month</span>
+        </div>
+      </div>
+      <div class="card total-earnings">
+        <h3>Total Earnings</h3>
+        <p id="amountSum">₹0</p>
+        <div class="card-trend">
+          <i class="fas fa-arrow-up text-success"></i>
+          <span>18% from last month</span>
+        </div>
+      </div>
     </div>
 
     <!-- Quick Links -->
-    <div class="extra-grid">
-      <div class="grid-row">
-        <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
+    <div class="quick-links">
+      <h3 class="section-title">Quick Actions</h3>
+      <div class="grid-container">
+        <div class="grid-card" onclick="location.href='pay-history.html'">
           <div class="icon-text">
-            <img src="mobile-payment_16361676.png" alt="icon" class="icon" />
+            <i class="fas fa-exchange-alt icon" style="font-size: 1.5rem;"></i>
             <h4>View Transactions</h4>
           </div>
         </div>
-        <div class="grid-card clickable-card" onclick="location.href='users-list.html'">
+        <div class="grid-card" onclick="location.href='users-list.html'">
           <div class="icon-text">
-            <img src="group_8690837.png" alt="icon" class="icon" />
+            <i class="fas fa-users icon" style="font-size: 1.5rem;"></i>
             <h4>View Users</h4>
           </div>
         </div>
-      </div>
-      <div class="grid-row">
-        <div class="grid-card clickable-card" onclick="location.href='brijesh.html'">
+        <div class="grid-card" onclick="location.href='brijesh.html'">
           <div class="icon-text">
-            <img src="group_8690837.png" alt="icon" class="icon" />
+            <i class="fas fa-check-circle icon" style="font-size: 1.5rem;"></i>
             <h4>Confirm Transactions</h4>
           </div>
         </div>
-        <div class="grid-card clickable-card" onclick="location.href='upi-setting.html'">
+        <div class="grid-card" onclick="location.href='upi-setting.html'">
           <div class="icon-text">
-            <img src="setting_8690937.png" alt="icon" class="icon" />
+            <i class="fas fa-cog icon" style="font-size: 1.5rem;"></i>
             <h4>Update UPI</h4>
           </div>
         </div>
@@ -71,7 +373,100 @@
     </div>
   </div>
 
-  <!-- JS Modules -->
-  <script type="module" src="dashboard.js"></script>
+  <!-- Toast Notification -->
+  <div id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <div class="toast-content">Action completed successfully!</div>
+  </div>
+
+  <script>
+    // Sample data for charts
+    document.addEventListener('DOMContentLoaded', function() {
+      // User Growth Chart
+      const userCtx = document.getElementById('userChart').getContext('2d');
+      const userChart = new Chart(userCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [{
+            label: 'New Users',
+            data: [120, 190, 170, 220, 260, 300],
+            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+            borderColor: 'rgba(67, 97, 238, 1)',
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      // Pie Chart
+      const pieCtx = document.getElementById('pieChart').getContext('2d');
+      const pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Pending', 'Failed'],
+          datasets: [{
+            data: [300, 50, 20],
+            backgroundColor: [
+              'rgba(76, 201, 240, 0.8)',
+              'rgba(248, 150, 30, 0.8)',
+              'rgba(247, 37, 133, 0.8)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            }
+          },
+          cutout: '70%'
+        }
+      });
+
+      // Sample data for cards
+      document.getElementById('userCount').textContent = '1,248';
+      document.getElementById('transactionCount').textContent = '370';
+      document.getElementById('amountSum').textContent = '₹84,560';
+
+      // Logout button
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        showToast('Logout successful!');
+        // Add actual logout logic here
+      });
+    });
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.className = 'toast-success';
+      toast.querySelector('.toast-icon').className = 'fas fa-check-circle toast-icon';
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
