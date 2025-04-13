@@ -1,129 +1,358 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>All Transactions History</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction History | Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * {
-      margin: 0; padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #560bad;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --gray-light: #e9ecef;
+      --white: #ffffff;
     }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
     body {
-      background: #121212;
-      color: #fff;
+      background-color: #f5f7fa;
+      color: var(--dark);
       min-height: 100vh;
     }
-    .main-content {
-      padding: 30px;
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
     }
-    .top-bar {
+
+    /* Header */
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 2rem;
     }
-    h2 {
-      font-size: 24px;
-    }
-    .filters {
-      margin: 20px 0;
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--dark);
       display: flex;
-      gap: 10px;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header h1 i {
+      color: var(--primary);
+    }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
       flex-wrap: wrap;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
-    .filters input, .filters select {
-      padding: 8px 10px;
-      border-radius: 4px;
-      border: none;
-      background: #1e1e1e;
-      color: white;
+
+    .filters input, 
+    .filters select {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      font-size: 0.9rem;
+      min-width: 200px;
+      flex: 1;
+      transition: border-color 0.3s;
     }
-    .txn-table {
+
+    .filters input:focus,
+    .filters select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    }
+
+    /* Table */
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .transaction-table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 10px;
-      background: #1e1e1e;
     }
-    .txn-table th, .txn-table td {
-      padding: 10px;
-      border: 1px solid #333;
+
+    .transaction-table th {
+      background: var(--primary);
+      color: white;
+      padding: 1rem;
       text-align: left;
+      font-weight: 500;
     }
-    .txn-table th {
-      background: #333;
+
+    .transaction-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .txn-table tr:hover {
-      background: #2a2a2a;
+
+    .transaction-table tr:last-child td {
+      border-bottom: none;
     }
+
+    .transaction-table tr:hover {
+      background: rgba(67, 97, 238, 0.03);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-approved {
+      background: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+
+    .status-rejected {
+      background: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
+    }
+
+    .status-pending {
+      background: rgba(248, 150, 30, 0.1);
+      color: var(--warning);
+    }
+
+    /* Buttons */
     .btn {
-      padding: 6px 12px;
-      border-radius: 4px;
-      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      font-weight: bold;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .approve-btn { background: #28a745; color: #fff; }
-    .reject-btn { background: #dc3545; color: #fff; }
-    .btn-delete { background: #ff4d4d; color: #fff; }
+
+    .btn-sm {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .btn-approve {
+      background: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+
+    .btn-approve:hover {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-reject {
+      background: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
+    }
+
+    .btn-reject:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-delete {
+      background: rgba(108, 117, 125, 0.1);
+      color: var(--gray);
+    }
+
+    .btn-delete:hover {
+      background: var(--gray);
+      color: white;
+    }
+
+    /* Pagination */
     .pagination {
-      margin-top: 20px;
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 0.5rem;
+      margin-top: 2rem;
     }
+
     .pagination button {
-      padding: 6px 10px;
-      border-radius: 4px;
-      background: #333;
-      color: white;
-      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      color: var(--gray);
       cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .toast {
-      position: fixed;
-      bottom: 30px;
-      right: 30px;
-      background: #28a745;
+
+    .pagination button:hover,
+    .pagination button.active {
+      background: var(--primary);
       color: white;
-      padding: 12px 18px;
-      border-radius: 5px;
-      display: none;
-      font-size: 16px;
-      z-index: 9999;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border-color: var(--primary);
     }
+
+    .pagination button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Charts */
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-top: 2rem;
+    }
+
+    .chart-container h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--dark);
+    }
+
+    /* Loader */
     .loader {
-      text-align: center;
-      margin: 30px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
     }
-    .loader span {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      margin: 3px;
-      background: #00ffcc;
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(67, 97, 238, 0.2);
       border-radius: 50%;
-      animation: bounce 0.6s infinite alternate;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
     }
-    .loader span:nth-child(2) { animation-delay: 0.2s; }
-    .loader span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      to { transform: translateY(-10px); }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
-    .no-data {
+
+    /* Empty State */
+    .empty-state {
       text-align: center;
-      margin: 30px 0;
-      font-size: 18px;
-      color: #aaa;
+      padding: 3rem;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      color: rgba(108, 117, 125, 0.2);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--gray-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--gray);
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--dark);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateX(150%);
+      transition: transform 0.3s;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      transform: translateX(0);
+    }
+
+    .toast-icon {
+      font-size: 1.25rem;
+    }
+
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+      
+      .transaction-table {
+        display: block;
+        overflow-x: auto;
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filters input,
+      .filters select {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="main-content">
-    <div class="top-bar">
-      <h2>All Transactions History</h2>
+  <div class="container">
+    <div class="header">
+      <h1><i class="fas fa-exchange-alt"></i> Transaction History</h1>
     </div>
 
     <div class="filters">
@@ -137,29 +366,43 @@
     </div>
 
     <div id="loader" class="loader">
-      <span></span><span></span><span></span>
+      <div class="spinner"></div>
     </div>
 
-    <table class="txn-table" id="txnTable" style="display: none;">
-      <thead>
-        <tr>
-          <th>UTR</th>
-          <th>Amount</th>
-          <th>App</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="transactionBody"></tbody>
-    </table>
+    <div class="table-container">
+      <table class="transaction-table" id="txnTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>UTR</th>
+            <th>Amount</th>
+            <th>App</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transactionBody"></tbody>
+      </table>
 
-    <div class="no-data" id="noData" style="display: none;">No transactions yet.</div>
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fas fa-exchange-alt"></i>
+        <h3>No Transactions Found</h3>
+        <p>Try adjusting your search or filter criteria</p>
+      </div>
+    </div>
+
     <div class="pagination" id="pagination"></div>
-    <canvas id="statusChart" height="100"></canvas>
+
+    <div class="chart-container">
+      <h3><i class="fas fa-chart-bar"></i> Transaction Status Overview</h3>
+      <canvas id="statusChart" height="100"></canvas>
+    </div>
   </div>
 
-  <div id="toast" class="toast">Approved successfully!</div>
+  <div id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <div class="toast-content">Action completed successfully!</div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
@@ -167,11 +410,11 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
     const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-  };
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -186,7 +429,7 @@
 
     let transactions = [];
     let currentPage = 1;
-    const rowsPerPage = 8;
+    const rowsPerPage = 10;
 
     const transactionsRef = ref(db, "transactions");
     onValue(transactionsRef, snapshot => {
@@ -204,23 +447,25 @@
     function filterAndRender() {
       const query = searchInput.value.toLowerCase();
       const status = statusFilter.value;
+      
       let filtered = transactions.filter(txn => {
         return (
           (!status || txn.status === status) &&
           (
-            txn.utr?.toLowerCase().includes(query) ||
-            txn.app?.toLowerCase().includes(query) ||
-            txn.status?.toLowerCase().includes(query)
+            (txn.utr && txn.utr.toLowerCase().includes(query)) ||
+            (txn.app && txn.app.toLowerCase().includes(query)) ||
+            (txn.status && txn.status.toLowerCase().includes(query))
           )
         );
       });
+      
       renderTransactions(filtered);
     }
 
     function renderTransactions(data) {
       const table = document.getElementById("txnTable");
       const body = document.getElementById("transactionBody");
-      const noData = document.getElementById("noData");
+      const emptyState = document.getElementById("emptyState");
       const pagination = document.getElementById("pagination");
 
       body.innerHTML = "";
@@ -228,11 +473,11 @@
 
       if (data.length === 0) {
         table.style.display = "none";
-        noData.style.display = "block";
+        emptyState.style.display = "block";
         return;
       } else {
         table.style.display = "table";
-        noData.style.display = "none";
+        emptyState.style.display = "none";
       }
 
       const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -243,90 +488,207 @@
       currentData.forEach(txn => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${txn.utr}</td>
-          <td>₹${txn.amount}</td>
+          <td>${txn.utr || '-'}</td>
+          <td>₹${txn.amount || '0'}</td>
           <td>${txn.app || '-'}</td>
-          <td>${txn.date}</td>
-          <td>${txn.status}</td>
+          <td>${txn.date || '-'}</td>
+          <td><span class="status-badge status-${txn.status?.toLowerCase() || 'pending'}">${txn.status || 'Pending'}</span></td>
           <td>
-            <button class="btn approve-btn" onclick="updateStatus('${txn.id}', 'Approved')">Approve</button>
-            <button class="btn reject-btn" onclick="updateStatus('${txn.id}', 'Rejected')">Reject</button>
-            <button class="btn btn-delete" onclick="deleteTransaction('${txn.id}')">Delete</button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-sm btn-approve" onclick="updateStatus('${txn.id}', 'Approved')">
+                <i class="fas fa-check"></i> Approve
+              </button>
+              <button class="btn btn-sm btn-reject" onclick="updateStatus('${txn.id}', 'Rejected')">
+                <i class="fas fa-times"></i> Reject
+              </button>
+              <button class="btn btn-sm btn-delete" onclick="deleteTransaction('${txn.id}')">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
           </td>
         `;
         body.appendChild(row);
       });
 
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        if (i === currentPage) btn.style.background = "#28a745";
-        btn.onclick = () => { currentPage = i; filterAndRender(); };
-        pagination.appendChild(btn);
+      // Pagination
+      if (totalPages > 1) {
+        // Previous button
+        const prevBtn = document.createElement("button");
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => { currentPage = Math.max(1, currentPage - 1); filterAndRender(); };
+        pagination.appendChild(prevBtn);
+
+        // Page numbers
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+          startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        if (startPage > 1) {
+          const firstBtn = document.createElement("button");
+          firstBtn.textContent = "1";
+          firstBtn.onclick = () => { currentPage = 1; filterAndRender(); };
+          pagination.appendChild(firstBtn);
+
+          if (startPage > 2) {
+            const ellipsis = document.createElement("button");
+            ellipsis.textContent = "...";
+            ellipsis.disabled = true;
+            pagination.appendChild(ellipsis);
+          }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+          const pageBtn = document.createElement("button");
+          pageBtn.textContent = i;
+          pageBtn.className = i === currentPage ? "active" : "";
+          pageBtn.onclick = () => { currentPage = i; filterAndRender(); };
+          pagination.appendChild(pageBtn);
+        }
+
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) {
+            const ellipsis = document.createElement("button");
+            ellipsis.textContent = "...";
+            ellipsis.disabled = true;
+            pagination.appendChild(ellipsis);
+          }
+
+          const lastBtn = document.createElement("button");
+          lastBtn.textContent = totalPages;
+          lastBtn.onclick = () => { currentPage = totalPages; filterAndRender(); };
+          pagination.appendChild(lastBtn);
+        }
+
+        // Next button
+        const nextBtn = document.createElement("button");
+        nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => { currentPage = Math.min(totalPages, currentPage + 1); filterAndRender(); };
+        pagination.appendChild(nextBtn);
       }
 
       updateChart(data);
     }
 
-    searchInput.addEventListener("input", () => { currentPage = 1; filterAndRender(); });
-    statusFilter.addEventListener("change", () => { currentPage = 1; filterAndRender(); });
+    searchInput.addEventListener("input", debounce(() => { 
+      currentPage = 1; 
+      filterAndRender(); 
+    }, 300));
 
-    /*
-    window.updateStatus = (id, status) => {
-      update(ref(db, "transactions/" + id), { status }).then(() => showToast(`${status} successfully!`));
-    };
-*/
-    window.updateStatus = (id, status) => {
-  const txn = transactions.find(t => t.id === id);
-  if (!txn) return;
+    statusFilter.addEventListener("change", () => { 
+      currentPage = 1; 
+      filterAndRender(); 
+    });
 
-  update(ref(db, "transactions/" + id), { status }).then(() => {
-    if (status === "Approved" && txn.uid) {
-      update(ref(db, "users/" + txn.uid), { status: "active" }).then(() => {
-        showToast("Approved and user activated!");
-      }).catch(() => {
-        showToast("Approved, but failed to update user status.");
+    window.updateStatus = (id, status) => {
+      const txn = transactions.find(t => t.id === id);
+      if (!txn) return;
+
+      update(ref(db, "transactions/" + id), { status }).then(() => {
+        if (status === "Approved" && txn.uid) {
+          update(ref(db, "users/" + txn.uid), { status: "active" }).then(() => {
+            showToast("Approved and user activated!");
+          }).catch(() => {
+            showToast("Approved, but failed to update user status.");
+          });
+        } else {
+          showToast(`${status} successfully!`);
+        }
+      }).catch(error => {
+        showToast(`Failed to update: ${error.message}`, true);
       });
-    } else {
-      showToast(`${status} successfully!`);
-    }
-  });
-};
+    };
     
     window.deleteTransaction = (id) => {
-      if (confirm("Delete this transaction?")) {
-        remove(ref(db, "transactions/" + id)).then(() => showToast("Deleted successfully!"));
+      if (confirm("Are you sure you want to delete this transaction?")) {
+        remove(ref(db, "transactions/" + id)).then(() => {
+          showToast("Transaction deleted successfully!");
+        }).catch(error => {
+          showToast(`Failed to delete: ${error.message}`, true);
+        });
       }
     };
 
-    function showToast(msg) {
+    function showToast(message, isError = false) {
       const toast = document.getElementById("toast");
-      toast.textContent = msg;
-      toast.style.display = "block";
-      setTimeout(() => (toast.style.display = "none"), 3000);
+      toast.className = isError ? "toast-error" : "toast-success";
+      toast.querySelector('.toast-icon').className = isError 
+        ? "fas fa-exclamation-circle toast-icon" 
+        : "fas fa-check-circle toast-icon";
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add("show");
+      
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
     }
 
     function updateChart(data) {
       const counts = data.reduce((acc, t) => {
-        acc[t.status] = (acc[t.status] || 0) + 1;
+        const status = t.status || 'Pending';
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
+
       const ctx = document.getElementById("statusChart").getContext("2d");
       if (window.statusChart) window.statusChart.destroy();
+      
       window.statusChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
           labels: ['Approved', 'Rejected', 'Pending'],
           datasets: [{
-            data: [counts['Approved'] || 0, counts['Rejected'] || 0, counts['Pending'] || 0],
-            backgroundColor: ['#28a745', '#dc3545', '#ffc107']
+            data: [
+              counts['Approved'] || 0, 
+              counts['Rejected'] || 0, 
+              counts['Pending'] || 0
+            ],
+            backgroundColor: [
+              'rgba(76, 201, 240, 0.8)',
+              'rgba(247, 37, 133, 0.8)',
+              'rgba(248, 150, 30, 0.8)'
+            ],
+            borderWidth: 0
           }]
         },
         options: {
-          plugins: { legend: { display: false } },
-          responsive: true
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          },
+          cutout: '70%'
         }
       });
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(context, args);
+        }, wait);
+      };
     }
   </script>
 </body>
