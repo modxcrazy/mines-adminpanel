@@ -3,10 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>Admin Portal | Secure Access</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #f8f9fa;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -19,116 +31,207 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: url('https://images.unsplash.com/photo-1608571424300-b7137cdd7f2b?auto=format&fit=crop&w=1470&q=80') no-repeat center center/cover;
+      background: linear-gradient(135deg, var(--darker), var(--dark));
       position: relative;
+      overflow: hidden;
     }
 
-    body::after {
-      content: '';
+    .particles {
       position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
       width: 100%;
-      backdrop-filter: blur(8px);
-      background-color: rgba(0, 0, 0, 0.3);
+      height: 100%;
       z-index: 0;
     }
 
     .login-container {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       width: 100%;
-      max-width: 400px;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
+      max-width: 420px;
+      padding: 50px 40px;
+      background: rgba(22, 33, 62, 0.8);
+      border-radius: 20px;
       backdrop-filter: blur(12px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.1);
       text-align: center;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .logo {
       width: 80px;
-      margin: 0 auto 20px;
-      animation: bounce 1.5s infinite ease-in-out;
+      height: 80px;
+      margin: 0 auto 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      padding: 15px;
+      box-shadow: 0 10px 25px rgba(67, 97, 238, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
     }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+    .logo i {
+      font-size: 36px;
+      color: white;
     }
 
     .login-container h2 {
-      color: #fff;
+      color: var(--light);
       font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 24px;
+    }
+
+    .login-container p.subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
       margin-bottom: 30px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
     }
 
     .login-container input {
       width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
+      padding: 15px 15px 15px 50px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       outline: none;
-      color: #fff;
+      color: var(--light);
       font-size: 15px;
+      transition: all 0.3s ease;
     }
 
     .login-container input::placeholder {
-      color: #eee;
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .login-container input:focus {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
     }
 
     .login-container button {
       width: 100%;
-      padding: 12px;
+      padding: 16px;
       border: none;
-      border-radius: 10px;
-      background-image: linear-gradient(to right, #00c6ff, #0072ff);
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
       color: white;
       font-size: 16px;
-      font-weight: bold;
+      font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
     }
 
     .login-container button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+    }
+
+    .login-container button:active {
+      transform: translateY(0);
     }
 
     .error-text {
-      color: #ff4d4d;
+      color: var(--danger);
       font-size: 14px;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 15px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .footer-text {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      margin-top: 30px;
+      text-align: center;
     }
 
     @media (max-width: 480px) {
       .login-container {
-        padding: 30px 20px;
+        padding: 40px 25px;
+        margin: 20px;
       }
+      
       .logo {
-        width: 60px;
+        width: 70px;
+        height: 70px;
       }
+    }
+
+    /* Animated particles background */
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float linear infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-100vh) rotate(360deg); }
     }
   </style>
 </head>
 <body>
+  <div class="particles" id="particles"></div>
+  
   <div class="login-container">
-    <img src="https://cdn-icons-png.flaticon.com/512/295/295128.png" alt="Logo" class="logo" />
-    <h2>Admin Login</h2>
-    <input type="email" id="loginEmail" placeholder="Enter Email" />
-    <input type="password" id="loginPassword" placeholder="Enter Password" />
-    <button id="loginBtn">Login</button>
+    <div class="logo">
+      <i class="fas fa-lock"></i>
+    </div>
+    <h2>Admin Portal</h2>
+    <p class="subtitle">Secure access to your dashboard</p>
+    
+    <div class="input-group">
+      <i class="fas fa-envelope"></i>
+      <input type="email" id="loginEmail" placeholder="Admin Email" />
+    </div>
+    
+    <div class="input-group">
+      <i class="fas fa-key"></i>
+      <input type="password" id="loginPassword" placeholder="Password" />
+    </div>
+    
+    <button id="loginBtn">
+      <i class="fas fa-sign-in-alt"></i> Login
+    </button>
+    
     <p id="loginError" class="error-text"></p>
+    
+    <p class="footer-text">
+      <i class="fas fa-shield-alt"></i> Secure connection encrypted
+    </p>
   </div>
 
   <script type="module">
@@ -136,15 +239,42 @@
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
-    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
-    authDomain: "mines-botai.firebaseapp.com",
-    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
-    projectId: "mines-botai",
-    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+
+    // Create floating particles
+    function createParticles() {
+      const particlesEl = document.getElementById('particles');
+      const particleCount = 15;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        const size = Math.random() * 10 + 5;
+        const posX = Math.random() * 100;
+        const duration = Math.random() * 30 + 20;
+        const delay = Math.random() * 5;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${posX}%`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `${delay}s`;
+        particle.style.opacity = Math.random() * 0.5 + 0.1;
+        
+        particlesEl.appendChild(particle);
+      }
+    }
+
+    createParticles();
 
     const loginBtn = document.getElementById("loginBtn");
     const loginError = document.getElementById("loginError");
@@ -153,24 +283,40 @@
       const email = document.getElementById("loginEmail").value;
       const password = document.getElementById("loginPassword").value;
 
+      loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating';
+      loginBtn.disabled = true;
+
       signInWithEmailAndPassword(auth, email, password)
         .then(() => {
           loginError.textContent = "";
+          loginBtn.innerHTML = '<i class="fas fa-check"></i> Access Granted';
+          loginBtn.style.background = "linear-gradient(135deg, #4cc9f0, #4895ef)";
+          
+          // Confetti celebration
           confetti({
-            particleCount: 100,
+            particleCount: 150,
             spread: 70,
-            origin: { y: 0.6 }
+            origin: { y: 0.6 },
+            colors: ['#4361ee', '#4895ef', '#4cc9f0', '#f72585']
           });
-          loginBtn.textContent = "Success!";
-          loginBtn.style.backgroundImage = "linear-gradient(to right, #00ff8c, #00b86b)";
+          
           setTimeout(() => {
-            window.location.href = "dashboard.html"; // Redirect to dashboard
-          }, 2000);
+            window.location.href = "dashboard.html";
+          }, 1500);
         })
         .catch((error) => {
-          loginError.textContent = "Invalid email or password!";
+          loginError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Invalid credentials';
+          loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+          loginBtn.disabled = false;
           console.error(error);
         });
+    });
+
+    // Allow login on Enter key press
+    document.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        loginBtn.click();
+      }
     });
   </script>
 </body>
