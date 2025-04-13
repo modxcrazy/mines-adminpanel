@@ -4,156 +4,729 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Users List - Admin Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
 
   <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #3f37c9;
+      --secondary: #3a0ca3;
+      --danger: #f72585;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --gray-dark: #343a40;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
     body {
       font-family: 'Poppins', sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 30px;
+      background: #f5f7fa;
+      color: var(--dark);
+      line-height: 1.6;
     }
+    
     .container {
-      max-width: 1000px;
-      margin: auto;
+      display: flex;
+      min-height: 100vh;
     }
-    h2 {
-      color: #00e5ff;
-      text-align: center;
-      margin-bottom: 25px;
+    
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--dark);
+      color: white;
+      padding: 2rem 1rem;
+      position: fixed;
+      height: 100vh;
+      transition: all 0.3s;
+      z-index: 1000;
     }
+    
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding: 0 1rem;
+    }
+    
+    .sidebar-header h3 {
+      font-weight: 600;
+      color: var(--light);
+    }
+    
+    .sidebar-menu {
+      margin-top: 2rem;
+    }
+    
+    .sidebar-menu li {
+      list-style: none;
+      margin-bottom: 0.5rem;
+    }
+    
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.3s;
+    }
+    
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .sidebar-menu i {
+      margin-right: 0.75rem;
+      font-size: 1.1rem;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 280px;
+      padding: 2rem;
+      transition: all 0.3s;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .user-profile {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-profile img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 0.75rem;
+    }
+    
+    .user-profile span {
+      font-weight: 500;
+    }
+    
+    /* Dashboard Cards */
+    .dashboard-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .card-title {
+      font-size: 1rem;
+      color: var(--gray);
+      font-weight: 500;
+    }
+    
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    .card-icon.users {
+      background: linear-gradient(135deg, #4361ee, #3a0ca3);
+    }
+    
+    .card-icon.blocked {
+      background: linear-gradient(135deg, #f72585, #b5179e);
+    }
+    
+    .card-icon.active {
+      background: linear-gradient(135deg, #4cc9f0, #4895ef);
+    }
+    
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .card-change {
+      font-size: 0.875rem;
+      color: var(--success);
+      display: flex;
+      align-items: center;
+    }
+    
+    .card-change.danger {
+      color: var(--danger);
+    }
+    
+    /* Controls */
     .controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
-      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
+    
     .controls input,
-    .controls select,
+    .controls select {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      font-size: 0.9rem;
+      flex: 1;
+      min-width: 200px;
+      transition: border-color 0.3s;
+    }
+    
+    .controls input:focus,
+    .controls select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
     .controls button {
-      padding: 12px 14px;
+      padding: 0.75rem 1.5rem;
       border-radius: 8px;
       border: none;
-      background: #1e1e1e;
-      color: #00e5ff;
-      font-weight: 600;
-      flex: 1;
-      min-width: 180px;
-    }
-    .controls button {
+      background-color: var(--primary);
+      color: white;
+      font-weight: 500;
       cursor: pointer;
-      background-color: #00e5ff;
-      color: #111;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-
+    
+    .controls button:hover {
+      background-color: var(--primary-light);
+    }
+    
+    /* User List */
+    .user-list-container {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    
+    .user-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .user-list-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+    
+    .user-list-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
     .user-list {
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 0.75rem;
     }
+    
     .user-card {
-      background: #1e1e1e;
-      padding: 16px;
-      border-left: 4px solid #00e5ff;
+      background: white;
+      padding: 1.25rem;
+      border-left: 4px solid var(--primary);
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
     }
-    .user-info p {
-      margin: 3px 0;
+    
+    .user-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
-    .block-btn {
-      background: #ff1744;
-      border: none;
-      padding: 8px 12px;
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--dark);
+    }
+    
+    .user-email {
+      font-size: 0.875rem;
+      color: var(--gray);
+      margin-bottom: 0.5rem;
+    }
+    
+    .user-meta {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .user-status {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .user-status.active {
+      background: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+    
+    .user-status.blocked {
+      background: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
+    }
+    
+    .user-date {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
       border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
       cursor: pointer;
-      color: #fff;
-      font-weight: bold;
+      transition: all 0.3s;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
     }
-    .block-btn.unblock {
-      background-color: #00c853;
+    
+    .btn-block {
+      background: rgba(247, 37, 133, 0.1);
+      color: var(--danger);
     }
+    
+    .btn-block:hover {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-unblock {
+      background: rgba(76, 201, 240, 0.1);
+      color: var(--success);
+    }
+    
+    .btn-unblock:hover {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-more {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+    }
+    
+    .btn-more:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+      gap: 0.5rem;
+    }
+    
+    .pagination button {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      background: white;
+      color: var(--gray);
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .pagination button:hover,
+    .pagination button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .pagination button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Toast */
     #toast {
       position: fixed;
       top: 20px;
       right: 20px;
-      background: #00e5ff;
-      color: #000;
-      padding: 12px 20px;
+      background: var(--dark);
+      color: white;
+      padding: 1rem 1.5rem;
       border-radius: 8px;
-      display: none;
-      z-index: 999;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transform: translateX(150%);
+      transition: transform 0.3s;
+      z-index: 9999;
     }
+    
+    #toast.show {
+      transform: translateX(0);
+    }
+    
+    .toast-icon {
+      font-size: 1.25rem;
+    }
+    
+    .toast-success .toast-icon {
+      color: var(--success);
+    }
+    
+    .toast-error .toast-icon {
+      color: var(--danger);
+    }
+    
+    .toast-content {
+      font-size: 0.9rem;
+    }
+    
+    /* Loader */
     #loader {
-      text-align: center;
-      margin-top: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
     }
-    .pagination {
-      text-align: center;
-      margin-top: 20px;
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(67, 97, 238, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
     }
-    .pagination button {
-      background: #222;
-      color: #00e5ff;
-      border: none;
-      padding: 10px;
-      margin: 0 5px;
-      border-radius: 6px;
-      cursor: pointer;
+    
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
-    #noUsersMsg {
+    
+    /* Empty State */
+    .empty-state {
       text-align: center;
-      font-size: 18px;
-      color: #aaa;
-      margin-top: 20px;
+      padding: 3rem 0;
     }
-    .blocked-count {
-      text-align: center;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #ff1744;
+    
+    .empty-state i {
+      font-size: 3rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+    
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--gray-dark);
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-state p {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        width: 80px;
+        overflow: hidden;
+      }
+      
+      .sidebar-header h3,
+      .sidebar-menu span {
+        display: none;
+      }
+      
+      .sidebar-menu a {
+        justify-content: center;
+      }
+      
+      .sidebar-menu i {
+        margin-right: 0;
+        font-size: 1.25rem;
+      }
+      
+      .main-content {
+        margin-left: 80px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .controls {
+        flex-direction: column;
+      }
+      
+      .controls input,
+      .controls select,
+      .controls button {
+        width: 100%;
+      }
+      
+      .user-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .user-actions {
+        align-self: flex-end;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>All Registered Users</h2>
-    <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by name, email or status" />
-      <select id="statusFilter">
-        <option value="">All Status</option>
-        <option value="active">Active</option>
-        <option value="blocked">Blocked</option>
-      </select>
-      <select id="sortSelect">
-        <option value="">Sort</option>
-        <option value="name">Name</option>
-        <option value="email">Email</option>
-        <option value="date">Registration Date</option>
-      </select>
-      <button onclick="exportToCSV()">Export CSV</button>
-    </div>
-
-    <div class="blocked-count" id="blockedCount"></div>
-    <div id="loader">Loading users...</div>
-    <div id="userList" class="user-list"></div>
-    <div id="noUsersMsg" style="display: none;">No users found</div>
-
-    <div class="pagination" id="pagination"></div>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h3>Admin Panel</h3>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li>
+          <a href="#" class="active">
+            <i class="fas fa-users"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-chart-line"></i>
+            <span>Analytics</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-bell"></i>
+            <span>Notifications</span>
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="fas fa-file-alt"></i>
+            <span>Reports</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="header">
+        <h1>User Management</h1>
+        <div class="user-profile">
+          <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="Admin">
+          <span>Admin</span>
+        </div>
+      </div>
+      
+      <!-- Dashboard Cards -->
+      <div class="dashboard-cards">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Total Users</div>
+            <div class="card-icon users">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+          <div class="card-value" id="totalUsers">0</div>
+          <div class="card-change">
+            <i class="fas fa-arrow-up"></i>
+            <span>12% from last month</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Active Users</div>
+            <div class="card-icon active">
+              <i class="fas fa-user-check"></i>
+            </div>
+          </div>
+          <div class="card-value" id="activeUsers">0</div>
+          <div class="card-change">
+            <i class="fas fa-arrow-up"></i>
+            <span>8% from last month</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Blocked Users</div>
+            <div class="card-icon blocked">
+              <i class="fas fa-user-slash"></i>
+            </div>
+          </div>
+          <div class="card-value" id="blockedUsers">0</div>
+          <div class="card-change danger">
+            <i class="fas fa-arrow-down"></i>
+            <span>3% from last month</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Controls -->
+      <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search users..." />
+        <select id="statusFilter">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="blocked">Blocked</option>
+        </select>
+        <select id="sortSelect">
+          <option value="">Sort By</option>
+          <option value="name">Name (A-Z)</option>
+          <option value="email">Email</option>
+          <option value="date">Registration Date</option>
+        </select>
+        <button onclick="exportToCSV()">
+          <i class="fas fa-file-export"></i>
+          Export CSV
+        </button>
+      </div>
+      
+      <!-- User List -->
+      <div class="user-list-container">
+        <div class="user-list-header">
+          <div class="user-list-title">All Registered Users</div>
+          <div class="user-list-actions">
+            <button class="btn btn-more">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div id="loader" class="loader">
+          <div class="spinner"></div>
+        </div>
+        
+        <div id="userList" class="user-list"></div>
+        
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <i class="fas fa-users-slash"></i>
+          <h3>No Users Found</h3>
+          <p>Try adjusting your search or filter to find what you're looking for.</p>
+          <button class="btn btn-more" onclick="resetFilters()">
+            <i class="fas fa-sync-alt"></i>
+            Reset Filters
+          </button>
+        </div>
+        
+        <div class="pagination" id="pagination"></div>
+      </div>
+    </main>
   </div>
-
-  <div id="toast"></div>
+  
+  <!-- Toast Notification -->
+  <div id="toast">
+    <i class="fas fa-check-circle toast-icon"></i>
+    <div class="toast-content">User blocked successfully!</div>
+  </div>
 
   <script src="firebase-config.js"></script>
   <script>
     const db = firebase.database();
-    const USERS_PER_PAGE = 5;
+    const USERS_PER_PAGE = 10;
 
     let usersData = {};
     let filteredUserKeys = [];
@@ -166,19 +739,55 @@
         currentUser = user;
         db.ref("admins/" + user.uid).once("value", snap => {
           isAdmin = snap.exists();
-          if (isAdmin) loadUsers();
-          else alert("Access Denied: Admins only");
+          if (isAdmin) {
+            loadUsers();
+            updateAdminProfile();
+          } else {
+            showErrorToast("Access Denied: Admins only");
+            setTimeout(() => {
+              window.location.href = "login.html";
+            }, 2000);
+          }
         });
       } else {
-        alert("Not logged in.");
+        showErrorToast("Please login to continue");
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
       }
     });
+
+    function updateAdminProfile() {
+      const adminName = document.querySelector('.user-profile span');
+      const adminImage = document.querySelector('.user-profile img');
+      
+      if (currentUser.displayName) {
+        adminName.textContent = currentUser.displayName;
+      }
+      
+      if (currentUser.photoURL) {
+        adminImage.src = currentUser.photoURL;
+      } else if (currentUser.email) {
+        adminImage.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.email)}&background=4361ee&color=fff`;
+      }
+    }
 
     function loadUsers() {
       db.ref("users").on("value", snapshot => {
         usersData = snapshot.val() || {};
+        updateDashboardCards();
         applyFilters();
       });
+    }
+
+    function updateDashboardCards() {
+      const total = Object.keys(usersData).length;
+      const blocked = Object.values(usersData).filter(user => user.status === "blocked").length;
+      const active = total - blocked;
+      
+      document.getElementById('totalUsers').textContent = total;
+      document.getElementById('activeUsers').textContent = active;
+      document.getElementById('blockedUsers').textContent = blocked;
     }
 
     function applyFilters() {
@@ -188,16 +797,25 @@
 
       filteredUserKeys = Object.keys(usersData).filter(uid => {
         let user = usersData[uid];
-        let matchSearch = !search || (user.name || "").toLowerCase().includes(search) || (user.email || "").toLowerCase().includes(search);
+        let matchSearch = !search || 
+          (user.name || "").toLowerCase().includes(search) || 
+          (user.email || "").toLowerCase().includes(search);
         let matchStatus = !status || (user.status || "active") === status;
         return matchSearch && matchStatus;
       });
 
       if (sort) {
         filteredUserKeys.sort((a, b) => {
-          const valA = (usersData[a][sort] || "").toLowerCase();
-          const valB = (usersData[b][sort] || "").toLowerCase();
-          return valA.localeCompare(valB);
+          const userA = usersData[a];
+          const userB = usersData[b];
+          
+          if (sort === "date") {
+            return (userA.registrationDate || "").localeCompare(userB.registrationDate || "");
+          } else {
+            const valA = (userA[sort] || "").toLowerCase();
+            const valB = (userB[sort] || "").toLowerCase();
+            return valA.localeCompare(valB);
+          }
         });
       }
 
@@ -208,8 +826,7 @@
     function renderUsers() {
       const list = document.getElementById("userList");
       const loader = document.getElementById("loader");
-      const noMsg = document.getElementById("noUsersMsg");
-      const blockedCountDiv = document.getElementById("blockedCount");
+      const emptyState = document.getElementById("emptyState");
       const start = (currentPage - 1) * USERS_PER_PAGE;
       const end = start + USERS_PER_PAGE;
       const pageKeys = filteredUserKeys.slice(start, end);
@@ -218,86 +835,211 @@
       list.innerHTML = "";
 
       if (filteredUserKeys.length === 0) {
-        noMsg.style.display = "block";
+        emptyState.style.display = "block";
         document.getElementById("pagination").innerHTML = "";
-        blockedCountDiv.innerText = "";
         return;
       }
 
-      noMsg.style.display = "none";
-
-      let blockedCount = 0;
+      emptyState.style.display = "none";
 
       pageKeys.forEach(uid => {
         const user = usersData[uid];
-        if (user.status === "blocked") blockedCount++;
+        const status = user.status || "active";
+        
         const card = document.createElement("div");
         card.className = "user-card";
         card.innerHTML = `
           <div class="user-info">
-            <p><strong>Name:</strong> ${user.name || "N/A"}</p>
-            <p><strong>Email:</strong> ${user.email}</p>
-            <p><strong>Status:</strong> ${user.status || "active"}</p>
-            <p><strong>Registered:</strong> ${user.registrationDate || "-"}</p>
+            <div class="user-name">${user.name || "No Name"}</div>
+            <div class="user-email">${user.email}</div>
+            <div class="user-meta">
+              <div class="user-status ${status}">${status}</div>
+              <div class="user-date">
+                <i class="far fa-calendar-alt"></i>
+                ${user.registrationDate || "No date"}
+              </div>
+            </div>
           </div>
-          <button class="block-btn ${user.status === "blocked" ? "unblock" : ""}" onclick="toggleBlock('${uid}')">
-            ${user.status === "blocked" ? "Unblock" : "Block"}
-          </button>
+          <div class="user-actions">
+            <button class="btn ${status === "blocked" ? "btn-unblock" : "btn-block"}" onclick="toggleBlock('${uid}')">
+              <i class="fas ${status === "blocked" ? "fa-user-check" : "fa-user-slash"}"></i>
+              ${status === "blocked" ? "Unblock" : "Block"}
+            </button>
+            <button class="btn btn-more" onclick="viewUserDetails('${uid}')">
+              <i class="fas fa-ellipsis-h"></i>
+            </button>
+          </div>
         `;
         list.appendChild(card);
       });
 
-      blockedCountDiv.innerText = `Blocked Users in this page: ${blockedCount}`;
+      renderPagination();
+    }
 
+    function renderPagination() {
       const totalPages = Math.ceil(filteredUserKeys.length / USERS_PER_PAGE);
-      let paginationHTML = "";
-      for (let i = 1; i <= totalPages; i++) {
-        paginationHTML += `<button onclick="goToPage(${i})" ${i === currentPage ? 'style="background:#00e5ff;color:#111"' : ''}>${i}</button>`;
+      const pagination = document.getElementById("pagination");
+      pagination.innerHTML = "";
+
+      if (totalPages <= 1) return;
+
+      // Previous button
+      const prevBtn = document.createElement("button");
+      prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => goToPage(currentPage - 1);
+      pagination.appendChild(prevBtn);
+
+      // Page numbers
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
-      document.getElementById("pagination").innerHTML = paginationHTML;
+
+      if (startPage > 1) {
+        const firstBtn = document.createElement("button");
+        firstBtn.textContent = "1";
+        firstBtn.onclick = () => goToPage(1);
+        pagination.appendChild(firstBtn);
+
+        if (startPage > 2) {
+          const ellipsis = document.createElement("button");
+          ellipsis.textContent = "...";
+          ellipsis.disabled = true;
+          pagination.appendChild(ellipsis);
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement("button");
+        pageBtn.textContent = i;
+        pageBtn.className = i === currentPage ? "active" : "";
+        pageBtn.onclick = () => goToPage(i);
+        pagination.appendChild(pageBtn);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          const ellipsis = document.createElement("button");
+          ellipsis.textContent = "...";
+          ellipsis.disabled = true;
+          pagination.appendChild(ellipsis);
+        }
+
+        const lastBtn = document.createElement("button");
+        lastBtn.textContent = totalPages;
+        lastBtn.onclick = () => goToPage(totalPages);
+        pagination.appendChild(lastBtn);
+      }
+
+      // Next button
+      const nextBtn = document.createElement("button");
+      nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => goToPage(currentPage + 1);
+      pagination.appendChild(nextBtn);
     }
 
     function goToPage(page) {
       currentPage = page;
       renderUsers();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function toggleBlock(uid) {
       const currentStatus = usersData[uid].status || "active";
       const newStatus = currentStatus === "blocked" ? "active" : "blocked";
+      
       db.ref("users/" + uid + "/status").set(newStatus).then(() => {
         showToast(`User ${newStatus === "blocked" ? "blocked" : "unblocked"} successfully!`);
+        updateDashboardCards();
+      }).catch(error => {
+        showErrorToast("Failed to update user status");
+        console.error("Error updating status:", error);
       });
+    }
+
+    function viewUserDetails(uid) {
+      // Implement user details modal or page
+      console.log("View details for user:", uid);
+      showToast("User details feature coming soon!");
+    }
+
+    function exportToCSV() {
+      if (filteredUserKeys.length === 0) {
+        showErrorToast("No users to export");
+        return;
+      }
+      
+      let csv = "Name,Email,Status,Registration Date\n";
+      filteredUserKeys.forEach(uid => {
+        let u = usersData[uid];
+        csv += `"${u.name || 'N/A'}","${u.email}","${u.status || 'active'}","${u.registrationDate || 'N/A'}"\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `users_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast("CSV exported successfully!");
+    }
+
+    function resetFilters() {
+      document.getElementById("searchInput").value = "";
+      document.getElementById("statusFilter").value = "";
+      document.getElementById("sortSelect").value = "";
+      applyFilters();
     }
 
     function showToast(message) {
       const toast = document.getElementById("toast");
-      toast.innerText = message;
-      toast.style.display = "block";
+      toast.className = "toast-success";
+      toast.querySelector('.toast-icon').className = "fas fa-check-circle toast-icon";
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add("show");
+      
       setTimeout(() => {
-        toast.style.display = "none";
+        toast.classList.remove("show");
       }, 3000);
     }
 
-    function exportToCSV() {
-      let csv = "Name,Email,Status,Registration Date\n";
-      filteredUserKeys.forEach(uid => {
-        let u = usersData[uid];
-        csv += `"${u.name}","${u.email}","${u.status}","${u.registrationDate}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "users.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    function showErrorToast(message) {
+      const toast = document.getElementById("toast");
+      toast.className = "toast-error";
+      toast.querySelector('.toast-icon').className = "fas fa-exclamation-circle toast-icon";
+      toast.querySelector('.toast-content').textContent = message;
+      toast.classList.add("show");
+      
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
     }
 
-    document.getElementById("searchInput").addEventListener("input", applyFilters);
+    // Event listeners
+    document.getElementById("searchInput").addEventListener("input", debounce(applyFilters, 300));
     document.getElementById("statusFilter").addEventListener("change", applyFilters);
     document.getElementById("sortSelect").addEventListener("change", applyFilters);
+
+    // Debounce function for search input
+    function debounce(func, wait) {
+      let timeout;
+      return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          func.apply(context, args);
+        }, wait);
+      };
+    }
   </script>
 </body>
 </html>
