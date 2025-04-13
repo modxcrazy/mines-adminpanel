@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { cursor: pointer; background: #f3f3f3; }
+    button { margin: 5px; }
+    #pagination button { margin: 2px; }
+    .badge { padding: 4px 8px; border-radius: 4px; color: white; }
+    .confirmed { background: green; }
+    .pending { background: orange; }
+    .summary { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+    .summary div { padding: 10px; background: #f0f0f0; border-radius: 5px; min-width: 150px; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <h2>Admin Panel</h2>
+
+  <div class="summary" id="summary">
+    <div><strong>Total Txns:</strong> <span id="totalTxns">0</span></div>
+    <div><strong>Confirmed:</strong> <span id="totalConfirmed">0</span></div>
+    <div><strong>Today:</strong> <span id="totalToday">0</span></div>
+    <div><strong>Total ₹:</strong> ₹<span id="totalAmount">0</span></div>
+  </div>
+
+  <input type="text" id="utrSearch" placeholder="Search UTR..." />
+  <button id="todayFilter">Today Only</button>
+  <button id="exportCSV">Export CSV</button>
+  <button id="refreshQR">Refresh QR</button>
+
+  <table id="transactionsTable">
+    <thead>
+      <tr>
+        <th>UID</th>
+        <th>UTR</th>
+        <th>Amount</th>
+        <th>Status</th>
+        <th>App</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="pagination"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set, push, update } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCn553qWsVz2VF1dZ4Ji5OkQDGFvMORbJE",
+      authDomain: "pg-data-ed1c2.firebaseapp.com",
+      databaseURL: "https://pg-data-ed1c2-default-rtdb.firebaseio.com",
+      projectId: "pg-data-ed1c2",
+      storageBucket: "pg-data-ed1c2.appspot.com",
+      messagingSenderId: "884858492190",
+      appId: "1:884858492190:web:67b7606ff790064ef3250f"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const tableBody = document.querySelector("#transactionsTable tbody");
+    const searchInput = document.getElementById("utrSearch");
+    const todayFilter = document.getElementById("todayFilter");
+    const exportBtn = document.getElementById("exportCSV");
+    const refreshBtn = document.getElementById("refreshQR");
+    const pagination = document.getElementById("pagination");
+
+    const totalTxnsElem = document.getElementById("totalTxns");
+    const totalConfirmedElem = document.getElementById("totalConfirmed");
+    const totalTodayElem = document.getElementById("totalToday");
+    const totalAmountElem = document.getElementById("totalAmount");
+
+    let allData = [], filteredData = [], currentPage = 1, rowsPerPage = 10;
+
+    function renderTable(data) {
+      tableBody.innerHTML = "";
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      data.slice(start, end).forEach((txn) => {
+        const tr = document.createElement("tr");
+        const badgeClass = txn.status === "Confirmed" ? "confirmed" : "pending";
+        tr.innerHTML = `
+          <td>${txn.uid}</td>
+          <td>${txn.utr}</td>
+          <td>₹${txn.amount}</td>
+          <td><span class="badge ${badgeClass}">${txn.status}</span></td>
+          <td>${txn.app}</td>
+          <td>${txn.date}</td>
+          <td>
+            ${txn.status !== "Confirmed" ? `<button onclick="confirmTxn('${txn.key}')">Confirm</button>` : ""}
+            ${txn.status === "Confirmed" ? `<button onclick="revertTxn('${txn.key}')">Revert</button>` : ""}
+          </td>`;
+        tableBody.appendChild(tr);
+      });
+      renderPagination(data.length);
+    }
+
+    function renderPagination(total) {
+      pagination.innerHTML = "";
+      const pages = Math.ceil(total / rowsPerPage);
+      for (let i = 1; i <= pages; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.onclick = () => { currentPage = i; renderTable(filteredData); };
+        if (i === currentPage) btn.style.fontWeight = "bold";
+        pagination.appendChild(btn);
+      }
+    }
+
+    window.confirmTxn = (key) => update(ref(db, `transactions/${key}`), { status: "Confirmed" });
+    window.revertTxn = (key) => update(ref(db, `transactions/${key}`), { status: "Pending" });
+
+    searchInput.addEventListener("input", () => {
+      const val = searchInput.value.trim();
+      filteredData = allData.filter(t => t.utr.includes(val));
+      currentPage = 1;
+      renderTable(filteredData);
+    });
+
+    todayFilter.addEventListener("click", () => {
+      const today = new Date().toLocaleDateString();
+      filteredData = allData.filter(t => t.date.includes(today));
+      currentPage = 1;
+      renderTable(filteredData);
+    });
+
+    exportBtn.addEventListener("click", () => {
+      const headers = "UID,UTR,Amount,Status,App,Date\n";
+      const csv = headers + filteredData.map(t =>
+        `${t.uid},${t.utr},${t.amount},${t.status},${t.app},${t.date}`
+      ).join("\n");
+
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "transactions.csv";
+      a.click();
+    });
+
+    refreshBtn.addEventListener("click", () => {
+      const newUPI = prompt("Enter new UPI ID:", "in99softdev78@upi");
+      const newAmount = prompt("Enter amount:", "299");
+      if (!newUPI || !newAmount) return;
+
+      set(ref(db, "settings"), {
+        upi: newUPI,
+        amount: newAmount
+      }).then(() => {
+        alert("QR Updated.");
+        push(ref(db, "qrRefreshLogs"), {
+          date: new Date().toLocaleString(),
+          reason: "QR refreshed from admin",
+          userAgent: navigator.userAgent
+        });
+      });
+    });
+
+    onValue(ref(db, "transactions"), (snap) => {
+      allData = [];
+      let confirmed = 0, today = 0, totalAmt = 0;
+      const todayStr = new Date().toLocaleDateString();
+
+      snap.forEach(child => {
+        const txn = { key: child.key, ...child.val() };
+        allData.push(txn);
+        if (txn.status === "Confirmed") confirmed++;
+        if (txn.date.includes(todayStr)) today++;
+        totalAmt += Number(txn.amount || 0);
+      });
+
+      allData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      filteredData = [...allData];
+      renderTable(filteredData);
+
+      totalTxnsElem.textContent = allData.length;
+      totalConfirmedElem.textContent = confirmed;
+      totalTodayElem.textContent = today;
+      totalAmountElem.textContent = totalAmt.toFixed(2);
+    });
+  </script>
+
+</body>
+</html>
