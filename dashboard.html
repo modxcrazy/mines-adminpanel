@@ -399,7 +399,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
-
+loadDashboardData();
 // Auth Check
 onAuthStateChanged(auth, (user) => {
   if (user) {
