@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebas
 import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-// Firebase Config
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
   authDomain: "mines-botai.firebaseapp.com",
@@ -13,20 +13,19 @@ const firebaseConfig = {
   appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
 };
 
+// Init Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// Auth Guard
+// Auth Check
 onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
     const adminRef = ref(db, 'admins/' + uid);
     get(adminRef).then((snapshot) => {
       if (snapshot.exists()) {
-        console.log("Admin access granted");
-        const adminContent = document.getElementById('admin-content');
-        if (adminContent) adminContent.style.display = 'block';
+        document.getElementById('admin-content').style.display = 'block';
         loadDashboardData();
       } else {
         alert("You are not authorized!");
@@ -42,7 +41,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Logout
-document.getElementById("logoutBtn")?.addEventListener("click", () => {
+document.getElementById("logoutBtn").addEventListener("click", () => {
   signOut(auth).then(() => {
     window.location.href = "admin-login.html";
   }).catch((error) => {
@@ -57,12 +56,10 @@ function loadDashboardData() {
     Jun: 0, Jul: 0, Aug: 0, Sep: 0, Oct: 0, Nov: 0, Dec: 0
   };
 
-  // Users Data
+  // Load Users
   const usersRef = ref(db, "users");
   onValue(usersRef, (snapshot) => {
     const users = snapshot.val();
-    console.log("Users Data:", users);
-
     const count = users ? Object.keys(users).length : 0;
     document.getElementById("userCount").textContent = count;
 
@@ -79,11 +76,9 @@ function loadDashboardData() {
       });
     }
     renderLineChart(monthWiseUsers);
-  }, {
-    onlyOnce: true
-  });
+  }, { onlyOnce: true });
 
-  // Transactions Data
+  // Load Transactions
   const transactionsRef = ref(db, "transactions");
   onValue(transactionsRef, (snapshot) => {
     let totalAmount = 0;
@@ -94,7 +89,6 @@ function loadDashboardData() {
       const tx = child.val();
       if (tx.amount) totalAmount += parseFloat(tx.amount || 0);
       totalCount++;
-
       if (tx.status === "Success") success++;
       else if (tx.status === "Pending") pending++;
       else failed++;
@@ -103,15 +97,13 @@ function loadDashboardData() {
     document.getElementById("transactionCount").textContent = totalCount;
     document.getElementById("amountSum").textContent = "₹" + totalAmount.toLocaleString();
     renderPieChart(success, pending, failed);
-  }, {
-    onlyOnce: true
-  });
+  }, { onlyOnce: true });
 }
 
-// Chart Drawing
+// Charts
 function renderLineChart(dataObj) {
   const canvas = document.getElementById('userChart');
-  if (!canvas) return console.warn('userChart canvas missing');
+  if (!canvas) return;
 
   const labels = Object.keys(dataObj);
   const data = Object.values(dataObj);
@@ -134,14 +126,13 @@ function renderLineChart(dataObj) {
 
 function renderPieChart(success, pending, failed) {
   const canvas = document.getElementById('pieChart');
-  if (!canvas) return console.warn('pieChart canvas missing');
+  if (!canvas) return;
 
   new Chart(canvas.getContext('2d'), {
     type: 'doughnut',
     data: {
       labels: ['Success', 'Pending', 'Failed'],
       datasets: [{
-        label: 'Transactions',
         data: [success, pending, failed],
         backgroundColor: ['#00ff95', '#ffaa00', '#ff005c']
       }]
