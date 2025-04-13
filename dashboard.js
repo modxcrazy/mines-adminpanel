@@ -1,23 +1,41 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getDatabase, ref, update, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-const db = firebase.database();
-const auth = firebase.auth();
+// Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+    authDomain: "mines-botai.firebaseapp.com",
+    databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+    projectId: "mines-botai",
+    storageBucket: "mines-botai.firebasestorage.app",
+    messagingSenderId: "175710322906",
+    appId: "1:175710322906:web:94470ebbc40336f6dfe5e3",
+  };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
 // -------------------- Auth Guard --------------------
-auth.onAuthStateChanged(function(user) {
+onAuthStateChanged(auth, (user) => {
   if (user) {
     const uid = user.uid;
-    db.ref('admins/' + uid).once('value').then((snapshot) => {
+    const adminRef = ref(db, 'admins/' + uid);
+    
+    get(adminRef).then((snapshot) => {
       if (snapshot.exists()) {
         console.log("Admin access granted");
         document.getElementById('admin-content').style.display = 'block';
-        loadDashboardData(); // Load after auth
+        loadDashboardData();
       } else {
         alert("You are not authorized!");
         window.location.href = "admin-login.html";
       }
+    }).catch((error) => {
+      console.error("Admin check failed:", error);
+      window.location.href = "admin-login.html";
     });
   } else {
     window.location.href = "admin-login.html";
@@ -26,7 +44,7 @@ auth.onAuthStateChanged(function(user) {
 
 // -------------------- Admin Logout --------------------
 document.getElementById("logoutBtn").addEventListener("click", () => {
-  auth.signOut().then(() => {
+  signOut(auth).then(() => {
     window.location.href = "admin-login.html";
   }).catch((error) => {
     alert("Logout failed: " + error.message);
@@ -41,7 +59,8 @@ function loadDashboardData() {
   };
 
   // --- Load Users Count & Chart ---
-  db.ref("users").once("value", snapshot => {
+  const usersRef = ref(db, "users");
+  onValue(usersRef, (snapshot) => {
     const users = snapshot.val();
     const count = users ? Object.keys(users).length : 0;
     document.getElementById("userCount").textContent = count;
@@ -58,17 +77,19 @@ function loadDashboardData() {
         }
       });
     }
-
     renderLineChart(monthWiseUsers);
+  }, {
+    onlyOnce: true
   });
 
   // --- Load Transactions Data ---
-  db.ref("transactions").once("value", snapshot => {
+  const transactionsRef = ref(db, "transactions");
+  onValue(transactionsRef, (snapshot) => {
     let totalAmount = 0;
     let totalCount = 0;
     let success = 0, pending = 0, failed = 0;
 
-    snapshot.forEach(child => {
+    snapshot.forEach((child) => {
       const tx = child.val();
       if (tx.amount) totalAmount += parseFloat(tx.amount);
       totalCount++;
@@ -81,6 +102,8 @@ function loadDashboardData() {
     document.getElementById("transactionCount").textContent = totalCount;
     document.getElementById("amountSum").textContent = "₹" + totalAmount.toLocaleString();
     renderPieChart(success, pending, failed);
+  }, {
+    onlyOnce: true
   });
 }
 
