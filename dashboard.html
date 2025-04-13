@@ -6,72 +6,59 @@
   <title>Admin Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.11/firebase-auth-compat.js"></script>
   <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
-  <div class="dashboard">
+  <div class="dashboard" id="admin-content" style="display:none;">
     <h2>Admin Dashboard</h2>
 
-    <!----- Admin Logout ----->
+    <!-- Logout Button -->
     <div style="text-align: right; margin-bottom: 20px;">
-    <button id="logoutBtn" style="background: #ff005c; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
-    Logout
-    </button>
+      <button id="logoutBtn" style="background: #ff005c; color: #fff; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">
+        Logout
+      </button>
     </div>
-    
+
+    <!-- Stats Cards -->
     <div class="cards">
-      <div class="card">
-        <h3>Total Users</h3>
-        <p id="userCount">0</p>
+      <div class="card"><h3>Total Users</h3><p id="userCount">0</p></div>
+      <div class="card"><h3>Total Transactions</h3><p id="transactionCount">0</p></div>
+      <div class="card"><h3>Total Amount</h3><p id="amountSum">₹0</p></div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="extra-grid">
+      <div class="grid-row">
+        <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
+          <div class="icon-text">
+            <img src="mobile-payment_16361676.png" alt="icon" class="icon" />
+            <h4>View Transactions</h4>
+          </div>
+        </div>
+        <div class="grid-card clickable-card" onclick="location.href='users-list.html'">
+          <div class="icon-text">
+            <img src="group_8690837.png" alt="icon" class="icon" />
+            <h4>View Users</h4>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <h3>Total Transactions</h3>
-        <p id="transactionCount">0</p>
-      </div>
-      <div class="card">
-        <h3>Total Amount</h3>
-        <p id="amountSum">₹0</p>
+      <div class="grid-row">
+        <div class="grid-card clickable-card" onclick="location.href='blocked-users.html'">
+          <div class="icon-text">
+            <img src="group_8690837.png" alt="icon" class="icon" />
+            <h4>Blocked Users</h4>
+          </div>
+        </div>
+        <div class="grid-card clickable-card" onclick="location.href='upi-setting.html'">
+          <div class="icon-text">
+            <img src="setting_8690937.png" alt="icon" class="icon" />
+            <h4>Update UPI</h4>
+          </div>
+        </div>
       </div>
     </div>
 
-<!-- New Grid Section -->
-<div class="extra-grid">
-  <!-- Row 1 -->
-  <div class="grid-row">
-    <div class="grid-card clickable-card" onclick="location.href='pay-history.html'">
-      <div class="icon-text">
-        <img src="mobile-payment_16361676.png" alt="icon" class="icon" />
-        <h4>View Transactions</h4>
-      </div>
-    </div>
-    <div class="grid-card clickable-card" onclick="location.href='users-list.html'">
-      <div class="icon-text">
-        <img src="group_8690837.png" alt="icon" class="icon" />
-        <h4>View Users</h4>
-      </div>
-    </div>
-  </div>
-
-  <!-- Row 2 -->
-  <div class="grid-row">
-    <div class="grid-card clickable-card" onclick="location.href='blocked-users.html'">
-      <div class="icon-text">
-        <img src="group_8690837.png" alt="icon" class="icon" />
-        <h4>Blocked Users</h4>
-      </div>
-    </div>
-    <div class="grid-card clickable-card" onclick="location.href='upi-setting.html'">
-      <div class="icon-text">
-        <img src="setting_8690937.png" alt="icon" class="icon" />
-        <h4>Update UPI</h4>
-      </div>
-    </div>
-  </div>
-</div>
-
+    <!-- Charts -->
     <div class="charts">
       <div class="chart-container">
         <h3>User Growth</h3>
@@ -84,6 +71,7 @@
     </div>
   </div>
 
-  <script src="dashboard.js"></script>
+  <!-- JS Modules -->
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
