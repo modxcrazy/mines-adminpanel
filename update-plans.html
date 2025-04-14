@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mines Bot AI - Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --primary-dark: #3a0ca3;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --white: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    /* Admin Layout */
+    .admin-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 20px 0;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      height: 100%;
+    }
+
+    .logo {
+      text-align: center;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo h2 {
+      font-size: 1.5rem;
+      background: linear-gradient(to right, white, var(--success));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-menu {
+      margin-top: 30px;
+    }
+
+    .nav-item {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-item.active, .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--success);
+    }
+
+    .nav-item i {
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: var(--primary-dark);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    /* Dashboard Cards */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-card .title {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 10px;
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+    }
+
+    .stat-card .change {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      font-size: 0.85rem;
+    }
+
+    .change.positive {
+      color: var(--success);
+    }
+
+    .change.negative {
+      color: var(--danger);
+    }
+
+    /* Plans Management */
+    .plans-management {
+      background: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      margin-bottom: 20px;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title i {
+      margin-right: 10px;
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .plan-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      transition: all 0.3s;
+    }
+
+    .plan-card:hover {
+      border-color: var(--primary-light);
+      box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+    }
+
+    .plan-header {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .plan-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 5px;
+    }
+
+    .plan-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .plan-form input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 1rem;
+    }
+
+    .plan-form input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .alert-success {
+      background: rgba(76, 201, 240, 0.1);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .alert-error {
+      background: rgba(247, 37, 133, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .alert i {
+      margin-right: 10px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .plans-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .stats-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 70px;
+        overflow: hidden;
+      }
+      
+      .logo h2, .nav-item span {
+        display: none;
+      }
+      
+      .nav-item {
+        justify-content: center;
+      }
+      
+      .nav-item i {
+        margin-right: 0;
+      }
+      
+      .main-content {
+        margin-left: 70px;
+      }
+      
+      .plans-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .stats-cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .user-info {
+        margin-top: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <h2>Mines Bot AI</h2>
+      </div>
+      <div class="nav-menu">
+        <div class="nav-item active">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="nav-item">
+          <i class="fas fa-crown"></i>
+          <span>Subscription Plans</span>
+        </div>
+        <div class="nav-item">
+          <i class="fas fa-users"></i>
+          <span>Users</span>
+        </div>
+        <div class="nav-item">
+          <i class="fas fa-chart-line"></i>
+          <span>Analytics</span>
+        </div>
+        <div class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <h1>Subscription Plans Management</h1>
+        <div class="user-info">
+          <img src="https://ui-avatars.com/api/?name=Admin&background=4361ee&color=fff" alt="Admin">
+          <span>Admin</span>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="title">Total Subscribers</div>
+          <div class="value" id="totalSubscribers">1,248</div>
+          <div class="change positive">
+            <i class="fas fa-arrow-up"></i> 12% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="title">Active Subscriptions</div>
+          <div class="value" id="activeSubscriptions">892</div>
+          <div class="change positive">
+            <i class="fas fa-arrow-up"></i> 5% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="title">Monthly Revenue</div>
+          <div class="value" id="monthlyRevenue">₹5,42,760</div>
+          <div class="change positive">
+            <i class="fas fa-arrow-up"></i> 18% from last month
+          </div>
+        </div>
+      </div>
+
+      <!-- Alert Message (hidden by default) -->
+      <div class="alert alert-success" id="alertMessage" style="display: none;">
+        <i class="fas fa-check-circle"></i>
+        <span id="alertText">Plan updated successfully!</span>
+      </div>
+
+      <!-- Plans Management -->
+      <div class="plans-management">
+        <div class="section-title">
+          <i class="fas fa-edit"></i>
+          <span>Edit Subscription Plans</span>
+        </div>
+
+        <div class="plans-grid" id="plansGrid">
+          <!-- Plans will be loaded here -->
+          <div class="loading" style="text-align: center; padding: 50px;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: var(--primary);"></i>
+            <p>Loading plans...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyABC123XYZ456DEF789GHI",
+      authDomain: "your-project-id.firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project-id.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abc123def456ghi789jkl"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Plan templates
+    const planTemplates = {
+      starter: {
+        name: "Starter",
+        description: "Perfect for beginners who want to test the bot",
+        features: [
+          "85-90% Accuracy Rate",
+          "5 Signals Per Day",
+          "Basic Support",
+          "1 Device Connection"
+        ]
+      },
+      professional: {
+        name: "Professional",
+        description: "For serious players who want consistent profits",
+        features: [
+          "92-96% Accuracy Rate",
+          "15 Signals Per Day",
+          "Priority Support",
+          "3 Device Connections",
+          "Basic Strategy Customization",
+          "VIP Signals Channel"
+        ]
+      },
+      enterprise: {
+        name: "Enterprise",
+        description: "For high rollers and professional players",
+        features: [
+          "97-99% Accuracy Rate",
+          "Unlimited Signals",
+          "24/7 VIP Support",
+          "10 Device Connections",
+          "Full Strategy Customization",
+          "All VIP Channels + Private Group"
+        ]
+      }
+    };
+
+    // DOM Elements
+    const plansGrid = document.getElementById('plansGrid');
+    const alertMessage = document.getElementById('alertMessage');
+    const alertText = document.getElementById('alertText');
+
+    // Function to show alert
+    function showAlert(message, type = 'success') {
+      alertMessage.className = `alert alert-${type}`;
+      alertText.textContent = message;
+      alertMessage.style.display = 'flex';
+      
+      setTimeout(() => {
+        alertMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    // Function to render plan forms
+    async function renderPlanForms() {
+      try {
+        // Fetch plans from Firestore
+        const querySnapshot = await db.collection("subscriptionPlans").get();
+        const plansData = {};
+        
+        querySnapshot.forEach((doc) => {
+          plansData[doc.id] = doc.data();
+        });
+
+        // Clear loading state
+        plansGrid.innerHTML = '';
+
+        // Render each plan form
+        Object.keys(planTemplates).forEach(planKey => {
+          const plan = planTemplates[planKey];
+          const planData = plansData[planKey] || {};
+          
+          const planCard = document.createElement('div');
+          planCard.className = 'plan-card';
+          planCard.innerHTML = `
+            <div class="plan-header">
+              <div class="plan-name">${plan.name}</div>
+            </div>
+            <form class="plan-form" id="${planKey}Form">
+              <label for="${planKey}-price">Monthly Price (₹)</label>
+              <input type="number" id="${planKey}-price" value="${planData.price || ''}" placeholder="Enter price" required>
+              
+              <label for="${planKey}-description">Description</label>
+              <input type="text" id="${planKey}-description" value="${planData.description || plan.description}" placeholder="Enter description" required>
+              
+              <div class="features-list">
+                <label>Features:</label>
+                <ul style="list-style: none; margin-top: 10px;">
+                  ${plan.features.map(feature => `
+                    <li style="margin-bottom: 5px;">
+                      <i class="fas fa-check" style="color: var(--success); margin-right: 5px;"></i>
+                      ${feature}
+                    </li>
+                  `).join('')}
+                </ul>
+              </div>
+              
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="resetForm('${planKey}')">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Save Changes
+                </button>
+              </div>
+            </form>
+          `;
+
+          plansGrid.appendChild(planCard);
+        });
+
+        // Add form submit handlers
+        Object.keys(planTemplates).forEach(planKey => {
+          document.getElementById(`${planKey}Form`).addEventListener('submit', (e) => {
+            e.preventDefault();
+            updatePlan(planKey);
+          });
+        });
+
+      } catch (error) {
+        console.error("Error loading plans: ", error);
+        showAlert("Failed to load plans. Please try again.", "error");
+      }
+    }
+
+    // Function to update plan
+    async function updatePlan(planKey) {
+      const price = document.getElementById(`${planKey}-price`).value;
+      const description = document.getElementById(`${planKey}-description`).value;
+      
+      if (!price || !description) {
+        showAlert("Please fill all fields", "error");
+        return;
+      }
+
+      try {
+        await db.collection("subscriptionPlans").doc(planKey).set({
+          price: parseInt(price),
+          monthlyPrice: parseInt(price),
+          description: description,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        showAlert(`${planTemplates[planKey].name} plan updated successfully!`);
+      } catch (error) {
+        console.error("Error updating plan: ", error);
+        showAlert("Failed to update plan. Please try again.", "error");
+      }
+    }
+
+    // Function to reset form
+    function resetForm(planKey) {
+      document.getElementById(`${planKey}-price`).value = '';
+      document.getElementById(`${planKey}-description`).value = planTemplates[planKey].description;
+    }
+
+    // Initialize admin panel
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is signed in
+        renderPlanForms();
+        
+        // You can also fetch and display real stats here
+        // fetchStats();
+      } else {
+        // No user is signed in, redirect to login
+        window.location.href = 'admin-login.html';
+      }
+    });
+
+    // For demo purposes, we'll just render the forms
+    // In a real app, you would have proper authentication
+    document.addEventListener('DOMContentLoaded', renderPlanForms);
+  </script>
+</body>
+</html>
