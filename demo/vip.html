@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - VIP Grid Set</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 80%;
+      height: 100px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      background: orange;
+      color: white;
+      cursor: pointer;
+    }
+
+    .status {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Set VIP Prediction Grid</h1>
+  <textarea id="gridInput" placeholder="Enter grid like: 0,6,7,12,18"></textarea><br />
+  <button onclick="submitGrid()">Save to Firebase</button>
+  <div class="status" id="statusMsg"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAgjEBxPifW0W3o7CtLfRZ9mXnHoMbibao",
+      authDomain: "mines-botai.firebaseapp.com",
+      databaseURL: "https://mines-botai-default-rtdb.firebaseio.com",
+      projectId: "mines-botai",
+      storageBucket: "mines-botai.firebasestorage.app",
+      messagingSenderId: "175710322906",
+      appId: "1:175710322906:web:94470ebbc40336f6dfe5e3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.submitGrid = async function () {
+      const input = document.getElementById("gridInput").value.trim();
+      const statusMsg = document.getElementById("statusMsg");
+
+      try {
+        const parsedGrid = input.split(",").map(num => parseInt(num.trim())).filter(n => !isNaN(n));
+        await set(ref(db, 'vipPrediction/session123'), { grid: parsedGrid });
+        statusMsg.textContent = "Grid successfully saved to Firebase!";
+        statusMsg.style.color = "lightgreen";
+      } catch (err) {
+        console.error("Error saving grid:", err);
+        statusMsg.textContent = "Error saving grid.";
+        statusMsg.style.color = "red";
+      }
+    };
+  </script>
+</body>
+</html>
