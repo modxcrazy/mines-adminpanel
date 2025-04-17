@@ -2,54 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin - VIP Grid Set</title>
+  <title>VIP Admin Panel</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js"></script>
   <style>
     body {
-      background: #111;
-      color: #fff;
-      font-family: sans-serif;
-      padding: 20px;
+      background: #0f0f0f;
+      color: white;
+      font-family: Arial, sans-serif;
       text-align: center;
+      padding: 20px;
     }
 
     h1 {
-      margin-bottom: 20px;
+      color: orange;
+      margin-bottom: 10px;
     }
 
-    textarea {
-      width: 80%;
-      height: 100px;
+    .input-container {
+      margin: 10px auto;
+    }
+
+    input[type="text"], input[type="password"] {
       padding: 10px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: none;
+      width: 250px;
+      text-align: center;
       font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin: 20px auto;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      background: #333;
+      color: white;
+      font-size: 26px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cell.selected {
+      background: orange;
+      color: white;
     }
 
     button {
-      margin-top: 20px;
+      margin: 10px 8px;
       padding: 10px 20px;
       font-size: 16px;
       font-weight: bold;
       border: none;
       border-radius: 6px;
-      background: orange;
-      color: white;
       cursor: pointer;
     }
 
+    .save {
+      background: limegreen;
+      color: white;
+    }
+
+    .reset {
+      background: crimson;
+      color: white;
+    }
+
     .status {
-      margin-top: 20px;
+      margin-top: 15px;
+    }
+
+    #auth-section {
+      margin-top: 100px;
+    }
+
+    #panel {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <h1>Set VIP Prediction Grid</h1>
-  <textarea id="gridInput" placeholder="Enter grid like: 0,6,7,12,18"></textarea><br />
-  <button onclick="submitGrid()">Save to Firebase</button>
-  <div class="status" id="statusMsg"></div>
+
+  <div id="auth-section">
+    <h1>Admin Login</h1>
+    <input type="password" id="adminPass" placeholder="Enter admin password" />
+    <br />
+    <button onclick="checkPassword()">Login</button>
+    <p id="authMsg"></p>
+  </div>
+
+  <div id="panel">
+    <h1>VIP Grid Admin Panel</h1>
+
+    <div class="input-container">
+      <input type="text" id="sessionInput" placeholder="Enter session name (e.g., vip2025)" />
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <div>
+      <button class="save" onclick="saveGrid()">Save Grid</button>
+      <button class="reset" onclick="resetGrid()">Reset Grid</button>
+    </div>
+
+    <div class="status" id="statusMsg"></div>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -68,21 +138,85 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.submitGrid = async function () {
-      const input = document.getElementById("gridInput").value.trim();
-      const statusMsg = document.getElementById("statusMsg");
+    const gridElement = document.getElementById('grid');
+    const statusMsg = document.getElementById('statusMsg');
+    const sessionInput = document.getElementById('sessionInput');
+    const selectedIndexes = new Set();
 
+    for (let i = 0; i < 25; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.index = i;
+      cell.textContent = i + 1;
+      cell.onclick = () => toggleCell(cell);
+      gridElement.appendChild(cell);
+    }
+
+    function toggleCell(cell) {
+      const index = parseInt(cell.dataset.index);
+      if (cell.classList.contains('selected')) {
+        cell.classList.remove('selected');
+        cell.textContent = index + 1;
+        selectedIndexes.delete(index);
+      } else {
+        cell.classList.add('selected');
+        cell.textContent = '★';
+        selectedIndexes.add(index);
+      }
+    }
+
+    function resetGrid() {
+      document.querySelectorAll('.cell').forEach(cell => {
+        const index = parseInt(cell.dataset.index);
+        cell.classList.remove('selected');
+        cell.textContent = index + 1;
+      });
+      selectedIndexes.clear();
+      statusMsg.textContent = '';
+    }
+
+    async function saveGrid() {
+      const session = sessionInput.value.trim();
+      if (!session) {
+        statusMsg.textContent = "Please enter session name!";
+        statusMsg.style.color = "orange";
+        return;
+      }
+
+      const gridArray = Array.from(selectedIndexes).sort((a, b) => a - b);
       try {
-        const parsedGrid = input.split(",").map(num => parseInt(num.trim())).filter(n => !isNaN(n));
-        await set(ref(db, 'vipPrediction/session123'), { grid: parsedGrid });
-        statusMsg.textContent = "Grid successfully saved to Firebase!";
+        await set(ref(db, `vipPrediction/${session}`), { grid: gridArray });
+        statusMsg.textContent = "Grid saved to Firebase!";
         statusMsg.style.color = "lightgreen";
-      } catch (err) {
-        console.error("Error saving grid:", err);
-        statusMsg.textContent = "Error saving grid.";
+      } catch (error) {
+        console.error("Save error:", error);
+        statusMsg.textContent = "Error saving grid!";
         statusMsg.style.color = "red";
       }
-    };
+    }
+
+    window.saveGrid = saveGrid;
+    window.resetGrid = resetGrid;
   </script>
+
+  <script>
+    function checkPassword() {
+      const pass = document.getElementById("adminPass").value;
+      const authSection = document.getElementById("auth-section");
+      const panel = document.getElementById("panel");
+      const authMsg = document.getElementById("authMsg");
+
+      const correctPassword = "softadmin"; // change as needed
+
+      if (pass === correctPassword) {
+        panel.style.display = "block";
+        authSection.style.display = "none";
+      } else {
+        authMsg.innerText = "Incorrect password!";
+        authMsg.style.color = "red";
+      }
+    }
+  </script>
+
 </body>
 </html>
